@@ -41,6 +41,7 @@ require_once __DIR__ . '/auth.php';
         <a href="/teste/dashboard/aluno.php">Meu Painel</a>
       <?php else: ?>
         <a href="/teste/dashboard/empresa.php">Painel Empresa</a>
+        <a href="/teste/empresa/publicar.php">+ Publicar Vaga</a>
       <?php endif; ?>
       Olá, <?= htmlspecialchars($_SESSION['nome'] ?? 'Usuário') ?> · <a href="/teste/logout.php">Sair</a>
     <?php else: ?>
