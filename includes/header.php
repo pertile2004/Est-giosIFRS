@@ -19,6 +19,8 @@ require_once __DIR__ . '/auth.php';
     .badge{display:inline-block;padding:4px 10px;border-radius:99px;font-size:.75rem;background:#EDE9FE;color:#7C3AED}
     .badge-green{background:#D1FAE5;color:#10B981}
     .badge-yellow{background:#FEF3C7;color:#F59E0B}
+    .badge-red{background:#FEE2E2;color:#DC2626}
+    .badge-blue{background:#DBEAFE;color:#2563EB}
     .btn{display:inline-block;padding:8px 16px;background:#7C3AED;color:#fff;border-radius:6px;text-decoration:none;border:none;cursor:pointer}
     .filter{display:flex;gap:12px;margin-bottom:24px}
     .filter select,.filter input{padding:8px;border:1px solid #ddd;border-radius:6px;flex:1}
