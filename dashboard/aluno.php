@@ -45,7 +45,12 @@ include __DIR__ . '/../includes/header.php';
               <td><?= htmlspecialchars($c['titulo']) ?></td>
               <td><?= htmlspecialchars($c['nome_empresa']) ?></td>
               <td>R$ <?= number_format($c['bolsa'], 0, ',', '.') ?></td>
-              <td><span class="badge badge-<?= $c['status']==='aprovado'?'green':'yellow' ?>"><?= ucfirst($c['status']) ?></span></td>
+              <td>
+                <?php
+                  $corStatus = ['pendente'=>'yellow','visualizado'=>'blue','aprovado'=>'green','recusado'=>'red'][$c['status']] ?? '';
+                ?>
+                <span class="badge <?= $corStatus ? 'badge-' . $corStatus : '' ?>"><?= ucfirst($c['status']) ?></span>
+              </td>
             </tr>
           <?php endforeach; ?>
         </tbody>

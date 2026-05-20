@@ -19,11 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = 'E-mail já cadastrado.';
     } else {
         $nomeEmpresa = trim($_POST['nome_empresa'] ?? '');
-        if (registrarEmpresa($nome, $email, $senha, $nomeEmpresa) && login($email, $senha)) {
+        if ($nomeEmpresa === '') {
+            $erro = 'Informe o nome da empresa.';
+        } elseif (registrarEmpresa($nome, $email, $senha, $nomeEmpresa) && login($email, $senha)) {
             header('Location: /teste/');
             exit;
+        } else {
+            $erro = $erro ?: 'E-mail já cadastrado.';
         }
-        $erro = 'E-mail já cadastrado.';
     }
 }
 
@@ -44,8 +47,13 @@ include __DIR__ . '/includes/header.php';
       <input type="email" name="email" placeholder="E-mail" required style="margin-bottom:8px;">
       <input type="password" name="senha" placeholder="Senha (mín. 6)" required style="margin-bottom:8px;">
       <div id="emp" style="display:none;">
-        <input type="text" name="nome_empresa" placeholder="Nome da empresa" style="margin-bottom:8px;">
+        <input type="text" id="nome_empresa" name="nome_empresa" placeholder="Nome da empresa" style="margin-bottom:8px;">
       </div>
+      <script>
+        document.querySelector('select[name="tipo"]').addEventListener('change', function() {
+          document.getElementById('nome_empresa').required = (this.value === 'empresa');
+        });
+      </script>
       <button class="btn" type="submit" style="width:100%;margin-top:4px;">Cadastrar</button>
     </form>
   </div>

@@ -61,9 +61,10 @@ CREATE TABLE IF NOT EXISTS candidaturas (
     FOREIGN KEY (vaga_id) REFERENCES vagas(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Senha de ambos os usuarios seed: senha123
 INSERT INTO usuarios (nome, email, senha, tipo) VALUES
-('Tech Solutions', 'empresa@teste.com', '$2y$10$9AhbL2Z0BqkWqH3TqI3xJuCpo4V19HFReMUJRq8UZdk9ftwFvmuuO', 'empresa'),
-('João Silva', 'joao@example.com', '$2y$10$placeholderhash', 'aluno');
+('Tech Solutions', 'empresa@teste.com', '$2y$10$Gr..dgEYGAtlLBS1rDbOJu2w6CEwjo2KWgPRyhqysTA5gM1YH9Jv2', 'empresa'),
+('João Silva', 'joao@example.com', '$2y$10$hGX7nFachL2AMkcJb2AElOxiWv39aQxuhbYpwWmWlxhDHhm8szgdG', 'aluno');
 
 INSERT INTO empresas (usuario_id, nome_empresa, cidade, estado, setor) VALUES
 (1, 'Tech Solutions', 'São Paulo', 'SP', 'Tecnologia');

@@ -29,7 +29,7 @@ include __DIR__ . '/../includes/header.php';
       <p style="margin-top:12px;">Nenhuma vaga publicada ainda.</p>
     <?php else: ?>
       <table>
-        <thead><tr><th>Título</th><th>Modalidade</th><th>Bolsa</th><th>Candidaturas</th><th>Status</th></tr></thead>
+        <thead><tr><th>Título</th><th>Modalidade</th><th>Bolsa</th><th>Candidaturas</th><th>Status</th><th></th></tr></thead>
         <tbody>
           <?php foreach ($vagas as $v): ?>
             <tr>
@@ -38,6 +38,11 @@ include __DIR__ . '/../includes/header.php';
               <td>R$ <?= number_format($v['bolsa'], 0, ',', '.') ?></td>
               <td><?= $v['total_cand'] ?></td>
               <td><span class="badge badge-<?= $v['ativa']?'green':'yellow' ?>"><?= $v['ativa']?'Ativa':'Pausada' ?></span></td>
+              <td>
+                <?php if ($v['total_cand'] > 0): ?>
+                  <a class="btn" href="/teste/empresa/candidatos.php?vaga_id=<?= (int)$v['id'] ?>" style="padding:4px 10px;font-size:.85rem;">Ver candidatos</a>
+                <?php endif; ?>
+              </td>
             </tr>
           <?php endforeach; ?>
         </tbody>
