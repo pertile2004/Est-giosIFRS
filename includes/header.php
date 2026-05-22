@@ -9,7 +9,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= $pageTitle ?? 'IntenSHIP Conect — Plataforma de Estágios' ?></title>
+  <title><?= $pageTitle ?? 'InternSHIP Conect — Plataforma de Estágios' ?></title>
   <meta name="description" content="Encontre o estágio ideal ou recrute talentos universitários na plataforma de estágios da região do IFRS.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +23,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
   <div class="navbar-inner">
     <a href="/teste/" class="navbar-brand">
       <div class="brand-icon">🎯</div>
-      IntenSHIP <span class="brand-dot">Conect</span>
+      InternSHIP <span class="brand-dot">Conect</span>
     </a>
 
     <div class="navbar-nav">

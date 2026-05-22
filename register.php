@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'IntenSHIP Conect — Cadastrar';
+$pageTitle = 'InternSHIP Conect — Cadastrar';
 require_once __DIR__ . '/includes/auth.php';
 
 $erro = '';

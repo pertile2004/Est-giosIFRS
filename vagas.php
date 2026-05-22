@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'IntenSHIP Conect — Vagas';
+$pageTitle = 'InternSHIP Conect — Vagas';
 require_once __DIR__ . '/includes/auth.php';
 
 $db = getDB();
