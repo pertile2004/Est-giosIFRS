@@ -12,7 +12,7 @@ $sucesso = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipo = $_POST['tipo'] ?? '';
-    $nome  = trim($_POST['nome'] ?? '');
+    $nome = trim($_POST['nome'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $senha = $_POST['senha'] ?? '';
     $confirma = $_POST['confirma'] ?? '';
@@ -60,7 +60,7 @@ include __DIR__ . '/includes/header.php';
       <a href="/teste/" style="display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:.9rem;margin-bottom:48px;text-decoration:none;">
         ← Voltar ao início
       </a>
-      <h2>Comece sua jornada! 🚀</h2>
+      <h2>Comece sua jornada!</h2>
       <p>Cadastre-se gratuitamente e acesse oportunidades de estágio nas melhores empresas da região do IFRS.</p>
       <div class="auth-features">
         <div class="auth-feature">
@@ -90,26 +90,25 @@ include __DIR__ . '/includes/header.php';
 
   <div class="auth-right" style="padding:32px 64px;overflow-y:auto;">
     <div class="auth-form-wrap">
-      <div class="auth-logo">
-        <div class="brand-icon">🎯</div>
-        InternSHIP Conect
+      <div class="auth-logo" style="justify-content:center;margin-bottom:24px;">
+        <img src="/teste/assets/img/logo.svg" alt="InternSHIP Connect" style="height:48px;">
       </div>
 
       <h2 style="margin-bottom:6px;">Criar conta grátis</h2>
       <p class="text-muted text-sm" style="margin-bottom:24px;">Escolha o tipo de conta que melhor descreve você</p>
 
       <?php if ($erro): ?>
-        <div class="alert alert-error">⚠️ <?= htmlspecialchars($erro) ?></div>
+        <div class="alert alert-error"><?= htmlspecialchars($erro) ?></div>
       <?php endif; ?>
 
       <form method="POST" id="register-form">
         <div class="tipo-select">
           <button type="button" class="tipo-btn <?= ($_POST['tipo'] ?? '') === 'aluno' ? 'selected' : '' ?>" data-tipo="aluno">
-            <span class="tipo-icon">🎓</span>
+            <span class="tipo-icon"></span>
             <span class="tipo-label">Sou Estudante</span>
           </button>
           <button type="button" class="tipo-btn <?= ($_POST['tipo'] ?? '') === 'empresa' ? 'selected' : '' ?>" data-tipo="empresa">
-            <span class="tipo-icon">🏢</span>
+            <span class="tipo-icon"></span>
             <span class="tipo-label">Sou Empresa</span>
           </button>
         </div>
@@ -199,7 +198,7 @@ include __DIR__ . '/includes/header.php';
         </label>
 
         <button type="submit" class="btn btn-primary btn-block btn-lg">
-          Criar conta grátis ✨
+          Criar conta grátis
         </button>
       </form>
 

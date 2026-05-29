@@ -10,16 +10,16 @@ $erro = '';
 $sucesso = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $titulo       = trim($_POST['titulo'] ?? '');
-    $descricao    = trim($_POST['descricao'] ?? '');
-    $requisitos   = trim($_POST['requisitos'] ?? '');
-    $beneficios   = trim($_POST['beneficios'] ?? '');
-    $area         = trim($_POST['area'] ?? '');
-    $cidade       = trim($_POST['cidade'] ?? '');
-    $estado       = trim($_POST['estado'] ?? '');
-    $modalidade   = $_POST['modalidade'] ?? 'presencial';
-    $bolsa        = (float)str_replace(',', '.', str_replace('.', '', $_POST['bolsa'] ?? '0'));
-    $carga        = (int)($_POST['carga_horaria'] ?? 30);
+    $titulo = trim($_POST['titulo'] ?? '');
+    $descricao = trim($_POST['descricao'] ?? '');
+    $requisitos = trim($_POST['requisitos'] ?? '');
+    $beneficios = trim($_POST['beneficios'] ?? '');
+    $area = trim($_POST['area'] ?? '');
+    $cidade = trim($_POST['cidade'] ?? '');
+    $estado = trim($_POST['estado'] ?? '');
+    $modalidade = $_POST['modalidade'] ?? 'presencial';
+    $bolsa = (float)str_replace(',', '.', str_replace('.', '', $_POST['bolsa'] ?? '0'));
+    $carga = (int)($_POST['carga_horaria'] ?? 30);
 
     if (!$titulo || !$descricao || !$area || !$cidade || !$estado) {
         $erro = 'Preencha todos os campos obrigatórios.';
@@ -43,19 +43,19 @@ include __DIR__ . '/../includes/header.php';
     <a href="/teste/dashboard/empresa.php" style="color:rgba(255,255,255,.5);font-size:.85rem;display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;">
       ← Voltar ao painel
     </a>
-    <h1 style="color:#fff;font-size:1.8rem;">Publicar nova vaga ➕</h1>
+    <h1 style="color:#fff;font-size:1.8rem;">Publicar nova vaga </h1>
     <p style="color:rgba(255,255,255,.6);margin-top:4px;">Encontre o estagiário ideal para sua equipe</p>
   </div>
 </div>
 
 <div class="publish-wrap">
   <?php if ($erro): ?>
-    <div class="alert alert-error">⚠️ <?= htmlspecialchars($erro) ?></div>
+    <div class="alert alert-error"><?= htmlspecialchars($erro) ?></div>
   <?php endif; ?>
 
   <form method="POST">
     <div class="card mb-6">
-      <div class="card-header"><h3>📝 Informações da Vaga</h3></div>
+      <div class="card-header"><h3>Informações da Vaga</h3></div>
       <div class="card-body">
         <div class="form-group">
           <label class="form-label">Título da vaga *</label>
@@ -76,9 +76,9 @@ include __DIR__ . '/../includes/header.php';
           <div class="form-group">
             <label class="form-label">Modalidade *</label>
             <select name="modalidade" class="form-control" required>
-              <option value="presencial" <?= ($_POST['modalidade'] ?? '') === 'presencial' ? 'selected' : '' ?>>🏢 Presencial</option>
-              <option value="remoto"     <?= ($_POST['modalidade'] ?? '') === 'remoto'     ? 'selected' : '' ?>>🌐 Remoto</option>
-              <option value="hibrido"    <?= ($_POST['modalidade'] ?? '') === 'hibrido'    ? 'selected' : '' ?>>🔀 Híbrido</option>
+              <option value="presencial" <?= ($_POST['modalidade'] ?? '') === 'presencial' ? 'selected' : '' ?>>Presencial</option>
+              <option value="remoto" <?= ($_POST['modalidade'] ?? '') === 'remoto' ? 'selected' : '' ?>>Remoto</option>
+              <option value="hibrido" <?= ($_POST['modalidade'] ?? '') === 'hibrido' ? 'selected' : '' ?>>Híbrido</option>
             </select>
           </div>
         </div>
@@ -117,7 +117,7 @@ include __DIR__ . '/../includes/header.php';
     </div>
 
     <div class="card mb-6">
-      <div class="card-header"><h3>📄 Descrição e Detalhes</h3></div>
+      <div class="card-header"><h3>Descrição e Detalhes</h3></div>
       <div class="card-body">
         <div class="form-group">
           <label class="form-label">Descrição da vaga *</label>
@@ -145,7 +145,7 @@ Inglês intermediário"><?= htmlspecialchars($_POST['requisitos'] ?? '') ?></tex
     <div style="display:flex;gap:12px;justify-content:flex-end;">
       <a href="/teste/dashboard/empresa.php" class="btn btn-ghost btn-lg">Cancelar</a>
       <button type="submit" class="btn btn-primary btn-lg">
-        🚀 Publicar vaga
+        Publicar vaga
       </button>
     </div>
   </form>

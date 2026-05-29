@@ -55,10 +55,10 @@ $vagasRec = $vagas->fetchAll();
 
 function statusBadge($s) {
     return match($s) {
-        'aprovado'    => '<span class="badge badge-green">✅ Aprovado</span>',
-        'recusado'    => '<span class="badge badge-red">❌ Recusado</span>',
-        'visualizado' => '<span class="badge badge-blue">👁️ Visualizado</span>',
-        default       => '<span class="badge badge-yellow">⏳ Pendente</span>',
+        'aprovado' => '<span class="badge badge-green">Aprovado</span>',
+        'recusado' => '<span class="badge badge-red">Recusado</span>',
+        'visualizado' => '<span class="badge badge-blue">Visualizado</span>',
+        default => '<span class="badge badge-yellow">⏳ Pendente</span>',
     };
 }
 
@@ -72,34 +72,34 @@ include __DIR__ . '/../includes/header.php';
         <?= mb_strtoupper(mb_substr($aluno['nome'], 0, 1)) ?>
       </div>
       <div class="sidebar-name"><?= htmlspecialchars($aluno['nome']) ?></div>
-      <div class="sidebar-role">🎓 <?= htmlspecialchars($aluno['curso'] ?: 'Estudante') ?></div>
+      <div class="sidebar-role"><?= htmlspecialchars($aluno['curso'] ?: 'Estudante') ?></div>
       <div style="margin-top:8px;font-size:.75rem;color:var(--gray-400);"><?= htmlspecialchars($aluno['universidade'] ?: '') ?></div>
     </div>
 
     <nav class="sidebar-nav">
       <span class="sidebar-section">Principal</span>
-      <a href="/teste/dashboard/aluno.php" class="active"><span class="icon">📊</span> Painel</a>
-      <a href="/teste/vagas.php"><span class="icon">🔍</span> Buscar Vagas</a>
+      <a href="/teste/dashboard/aluno.php" class="active"><span class="icon"></span> Painel</a>
+      <a href="/teste/vagas.php"><span class="icon"></span> Buscar Vagas</a>
 
       <span class="sidebar-section">Minha Conta</span>
-      <a href="#candidaturas" onclick="document.getElementById('candidaturas').scrollIntoView({behavior:'smooth'});return false;"><span class="icon">📋</span> Candidaturas <span class="badge badge-purple" style="margin-left:auto"><?= $totalCand ?></span></a>
-      <a href="#perfil" onclick="document.getElementById('perfil').scrollIntoView({behavior:'smooth'});return false;"><span class="icon">👤</span> Meu Perfil</a>
+      <a href="#candidaturas" onclick="document.getElementById('candidaturas').scrollIntoView({behavior:'smooth'});return false;"><span class="icon"></span> Candidaturas <span class="badge badge-purple" style="margin-left:auto"><?= $totalCand ?></span></a>
+      <a href="#perfil" onclick="document.getElementById('perfil').scrollIntoView({behavior:'smooth'});return false;"><span class="icon"></span> Meu Perfil</a>
 
       <span class="sidebar-section">Outros</span>
-      <a href="/teste/logout.php"><span class="icon">👋</span> Sair</a>
+      <a href="/teste/logout.php"><span class="icon"></span> Sair</a>
     </nav>
   </aside>
 
   <main class="dashboard-main">
     <?php if (isset($_GET['welcome'])): ?>
-      <div class="alert alert-success">🎉 Bem-vindo ao InternSHIP Conect! Complete seu perfil para aumentar suas chances de ser selecionado.</div>
+      <div class="alert alert-success">Conta criada com sucesso. Complete seu perfil para começar.</div>
     <?php endif; ?>
     <?php if ($successMsg): ?>
-      <div class="alert alert-success">✅ <?= htmlspecialchars($successMsg) ?></div>
+      <div class="alert alert-success"><?= htmlspecialchars($successMsg) ?></div>
     <?php endif; ?>
 
     <div class="dashboard-header">
-      <h1>Olá, <?= htmlspecialchars(explode(' ', $aluno['nome'])[0]) ?>! 👋</h1>
+      <h1>Olá, <?= htmlspecialchars(explode(' ', $aluno['nome'])[0]) ?>! </h1>
       <p>Acompanhe suas candidaturas e descubra novas oportunidades</p>
     </div>
 
@@ -107,19 +107,19 @@ include __DIR__ . '/../includes/header.php';
       <div class="kpi-card">
         <div class="kpi-top">
           <div><div class="kpi-num"><?= $totalCand ?></div><div class="kpi-label">Candidaturas</div></div>
-          <div class="kpi-icon" style="background:#EDE9FE;font-size:1.4rem;">📋</div>
+          <div class="kpi-icon" style="background:#EDE9FE;font-size:1.4rem;"></div>
         </div>
       </div>
       <div class="kpi-card">
         <div class="kpi-top">
           <div><div class="kpi-num"><?= $aprovadas ?></div><div class="kpi-label">Aprovadas</div></div>
-          <div class="kpi-icon" style="background:#D1FAE5;font-size:1.4rem;">✅</div>
+          <div class="kpi-icon" style="background:#D1FAE5;font-size:1.4rem;"></div>
         </div>
       </div>
       <div class="kpi-card">
         <div class="kpi-top">
           <div><div class="kpi-num"><?= $visualizadas ?></div><div class="kpi-label">Visualizadas</div></div>
-          <div class="kpi-icon" style="background:#DBEAFE;font-size:1.4rem;">👁️</div>
+          <div class="kpi-icon" style="background:#DBEAFE;font-size:1.4rem;"></div>
         </div>
       </div>
       <div class="kpi-card">
@@ -132,16 +132,16 @@ include __DIR__ . '/../includes/header.php';
 
     <div class="card mb-6" id="candidaturas">
       <div class="card-header">
-        <h3>📋 Minhas Candidaturas</h3>
+        <h3>Minhas Candidaturas</h3>
         <a href="/teste/vagas.php" class="btn btn-primary btn-sm">+ Nova candidatura</a>
       </div>
       <?php if (empty($candidaturas)): ?>
         <div class="card-body">
           <div class="empty-state">
-            <div class="empty-icon">📋</div>
+            <div class="empty-icon"></div>
             <h3>Nenhuma candidatura ainda</h3>
             <p>Comece explorando as vagas disponíveis!</p>
-            <a href="/teste/vagas.php" class="btn btn-primary" style="margin-top:16px;">🔍 Buscar vagas</a>
+            <a href="/teste/vagas.php" class="btn btn-primary" style="margin-top:16px;">Buscar vagas</a>
           </div>
         </div>
       <?php else: ?>
@@ -166,7 +166,7 @@ include __DIR__ . '/../includes/header.php';
                 <td style="color:var(--accent);font-weight:700;">R$ <?= number_format($c['bolsa'], 0, ',', '.') ?></td>
                 <td>
                   <span class="badge <?= $c['modalidade'] === 'remoto' ? 'badge-green' : ($c['modalidade'] === 'hibrido' ? 'badge-blue' : 'badge-gray') ?>">
-                    <?= $c['modalidade'] === 'remoto' ? '🌐' : ($c['modalidade'] === 'hibrido' ? '🔀' : '🏢') ?> <?= ucfirst($c['modalidade']) ?>
+                    <?= $c['modalidade'] === 'remoto' ? '' : ($c['modalidade'] === 'hibrido' ? '' : '') ?> <?= ucfirst($c['modalidade']) ?>
                   </span>
                 </td>
                 <td><?= statusBadge($c['status']) ?></td>
@@ -182,7 +182,7 @@ include __DIR__ . '/../includes/header.php';
 
     <div class="card mb-6">
       <div class="card-header">
-        <h3>⭐ Vagas Recomendadas</h3>
+        <h3>Vagas Recomendadas</h3>
         <a href="/teste/vagas.php" class="btn btn-ghost btn-sm">Ver todas →</a>
       </div>
       <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -203,9 +203,9 @@ include __DIR__ . '/../includes/header.php';
 
     <div class="card" id="perfil">
       <div class="card-header">
-        <h3>👤 Meu Perfil</h3>
+        <h3>Meu Perfil</h3>
         <span class="badge badge-<?= $aluno['curso'] && $aluno['universidade'] ? 'green' : 'yellow' ?>">
-          <?= $aluno['curso'] && $aluno['universidade'] ? '✅ Completo' : '⚠️ Incompleto' ?>
+          <?= $aluno['curso'] && $aluno['universidade'] ? 'Completo' : 'Incompleto' ?>
         </span>
       </div>
       <div class="card-body">
@@ -252,7 +252,7 @@ include __DIR__ . '/../includes/header.php';
             <label class="form-label">LinkedIn</label>
             <input type="url" name="linkedin" class="form-control" placeholder="https://linkedin.com/in/seu-perfil" value="<?= htmlspecialchars($aluno['linkedin'] ?? '') ?>">
           </div>
-          <button type="submit" name="update_profile" class="btn btn-primary">💾 Salvar perfil</button>
+          <button type="submit" name="update_profile" class="btn btn-primary">Salvar perfil</button>
         </form>
       </div>
     </div>

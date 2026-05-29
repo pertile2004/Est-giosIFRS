@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="260" height="64">
+  <defs>
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icone: oval com estrela e graduacao -->
+  <g transform="translate(4,4)">
+    <ellipse cx="28" cy="28" rx="26" ry="22" fill="none" stroke="url(#logoGrad)" stroke-width="2.5"/>
+    <ellipse cx="28" cy="28" rx="20" ry="16" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" opacity="0.6"/>
+    <!-- estrela no topo -->
+    <polygon points="28,2 30.5,8 37,8 31.7,11.7 33.7,17.7 28,14 22.3,17.7 24.3,11.7 19,8 25.5,8" fill="url(#logoGrad)"/>
+    <!-- chapeu de formatura -->
+    <polygon points="14,26 28,21 42,26 28,31" fill="url(#logoGrad)"/>
+    <rect x="22" y="30" width="12" height="2" fill="url(#logoGrad)"/>
+    <line x1="40" y1="26" x2="40" y2="34" stroke="url(#logoGrad)" stroke-width="1.5"/>
+    <circle cx="40" cy="35" r="1.5" fill="url(#logoGrad)"/>
+    <!-- predio -->
+    <rect x="34" y="32" width="8" height="14" fill="url(#logoGrad)" opacity="0.7"/>
+    <rect x="36" y="34" width="1.5" height="1.5" fill="#fff"/>
+    <rect x="39" y="34" width="1.5" height="1.5" fill="#fff"/>
+    <rect x="36" y="37" width="1.5" height="1.5" fill="#fff"/>
+    <rect x="39" y="37" width="1.5" height="1.5" fill="#fff"/>
+    <rect x="36" y="40" width="1.5" height="1.5" fill="#fff"/>
+    <rect x="39" y="40" width="1.5" height="1.5" fill="#fff"/>
+  </g>
+
+  <!-- Texto INTERNSHIP -->
+  <text x="70" y="30" font-family="Arial, sans-serif" font-weight="800" font-size="22" letter-spacing="1.5" fill="url(#logoGrad)">INTERNSHIP</text>
+
+  <!-- linha decorativa -->
+  <line x1="70" y1="42" x2="100" y2="42" stroke="url(#logoGrad)" stroke-width="1.5"/>
+  <circle cx="103" cy="42" r="2" fill="url(#logoGrad)"/>
+
+  <!-- Texto Connect cursivo -->
+  <text x="110" y="48" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="600" font-size="20" fill="#A21CAF">Connect</text>
+</svg>

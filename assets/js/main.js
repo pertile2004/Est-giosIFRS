@@ -4,7 +4,7 @@ const mobileNav = document.getElementById('mobile-nav');
 if (menuBtn && mobileNav) {
   menuBtn.addEventListener('click', () => {
     mobileNav.classList.toggle('open');
-    menuBtn.textContent = mobileNav.classList.contains('open') ? '✕' : '☰';
+    menuBtn.textContent = mobileNav.classList.contains('open') ? 'X' : '☰';
   });
 }
 
@@ -90,10 +90,9 @@ function showToast(message, type = 'success') {
     max-width:360px;
   `;
   const colors = { success: '#10B981', error: '#EF4444', info: '#3B82F6', warning: '#F59E0B' };
-  const icons  = { success: '✓', error: '✗', info: 'ℹ', warning: '⚠' };
   toast.style.background = colors[type] || colors.success;
   toast.style.color = '#fff';
-  toast.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
+  toast.innerHTML = `<span>${message}</span>`;
   document.body.appendChild(toast);
   setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = '.3s'; setTimeout(() => toast.remove(), 300); }, 3500);
 }

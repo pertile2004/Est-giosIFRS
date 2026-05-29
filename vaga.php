@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['candidatar'])) {
         $stmt2 = $db->prepare("INSERT INTO candidaturas (aluno_id, vaga_id, carta) VALUES (?, ?, ?)");
         $stmt2->execute([$_SESSION['perfil_id'], $id, $carta]);
         $jaCandidatou = true;
-        $mensagem = 'Candidatura enviada com sucesso! 🎉';
+        $mensagem = 'Candidatura enviada com sucesso!';
     }
 }
 
@@ -55,7 +55,7 @@ $similares = $similares->fetchAll();
 
 $pageTitle = htmlspecialchars($vaga['titulo']) . ' — InternSHIP Conect';
 
-function modalidadeLabel($m) { return match($m) { 'remoto' => '🌐 Remoto', 'hibrido' => '🔀 Híbrido', default => '🏢 Presencial' }; }
+function modalidadeLabel($m) { return match($m) { 'remoto' => 'Remoto', 'hibrido' => 'Híbrido', default => 'Presencial' }; }
 function modalidadeBadge($m) { return match($m) { 'remoto' => 'badge-green', 'hibrido' => 'badge-blue', default => 'badge-gray' }; }
 
 include __DIR__ . '/includes/header.php';
@@ -63,10 +63,8 @@ include __DIR__ . '/includes/header.php';
 
 <div class="job-detail-hero">
   <div class="container">
-    <div style="padding-top:8px;padding-bottom:32px;">
-      <a href="/teste/vagas.php" style="color:rgba(255,255,255,.5);font-size:.85rem;display:inline-flex;align-items:center;gap:6px;margin-bottom:24px;">
-        ← Voltar às vagas
-      </a>
+    <div style="padding:16px 0 24px;">
+      <a href="/teste/vagas.php" style="color:var(--gray-600);font-size:.88rem;">← Voltar às vagas</a>
     </div>
   </div>
 </div>
@@ -79,10 +77,10 @@ include __DIR__ . '/includes/header.php';
         <div style="background:#fff;border-radius:var(--radius-lg);padding:36px;border:1px solid var(--gray-200);box-shadow:var(--shadow);">
 
           <?php if ($mensagem): ?>
-            <div class="alert alert-success">🎉 <?= htmlspecialchars($mensagem) ?></div>
+            <div class="alert alert-success"><?= htmlspecialchars($mensagem) ?></div>
           <?php endif; ?>
           <?php if ($erroApply): ?>
-            <div class="alert alert-error">⚠️ <?= htmlspecialchars($erroApply) ?></div>
+            <div class="alert alert-error"><?= htmlspecialchars($erroApply) ?></div>
           <?php endif; ?>
 
           <div class="job-detail-header">
@@ -99,7 +97,7 @@ include __DIR__ . '/includes/header.php';
                 <span style="font-size:1rem;color:var(--gray-500);font-weight:600;"><?= htmlspecialchars($vaga['nome_empresa']) ?></span>
                 <span class="badge <?= modalidadeBadge($vaga['modalidade']) ?>"><?= modalidadeLabel($vaga['modalidade']) ?></span>
                 <?php if ($vaga['destaque']): ?>
-                  <span class="badge badge-yellow">⭐ Destaque</span>
+                  <span class="badge badge-yellow">Destaque</span>
                 <?php endif; ?>
               </div>
             </div>
@@ -107,28 +105,27 @@ include __DIR__ . '/includes/header.php';
 
           <div class="job-meta-grid">
             <div class="job-meta-item">
-              <div class="job-meta-icon">📍</div>
+              <div class="job-meta-icon"></div>
               <div>
                 <div class="job-meta-label">Localização</div>
                 <div class="job-meta-value"><?= htmlspecialchars($vaga['cidade']) ?>/<?= $vaga['estado'] ?></div>
               </div>
             </div>
             <div class="job-meta-item">
-              <div class="job-meta-icon">💰</div>
+              <div class="job-meta-icon"></div>
               <div>
                 <div class="job-meta-label">Bolsa mensal</div>
                 <div class="job-meta-value" style="color:var(--accent);">R$ <?= number_format($vaga['bolsa'], 0, ',', '.') ?></div>
               </div>
             </div>
             <div class="job-meta-item">
-              <div class="job-meta-icon">⏰</div>
               <div>
                 <div class="job-meta-label">Carga horária</div>
                 <div class="job-meta-value"><?= $vaga['carga_horaria'] ?>h por semana</div>
               </div>
             </div>
             <div class="job-meta-item">
-              <div class="job-meta-icon">🎯</div>
+              <div class="job-meta-icon"></div>
               <div>
                 <div class="job-meta-label">Área</div>
                 <div class="job-meta-value"><?= htmlspecialchars($vaga['area']) ?></div>
@@ -143,7 +140,7 @@ include __DIR__ . '/includes/header.php';
 
           <?php if ($vaga['requisitos']): ?>
           <div class="job-section">
-            <h3>✅ Requisitos</h3>
+            <h3>Requisitos</h3>
             <ul>
               <?php foreach (explode("\n", $vaga['requisitos']) as $req): ?>
                 <?php $req = trim($req); if ($req): ?>
@@ -156,7 +153,7 @@ include __DIR__ . '/includes/header.php';
 
           <?php if ($vaga['beneficios']): ?>
           <div class="job-section">
-            <h3>🎁 Benefícios</h3>
+            <h3>Benefícios</h3>
             <ul>
               <?php foreach (explode(",", $vaga['beneficios']) as $ben): ?>
                 <?php $ben = trim($ben); if ($ben): ?>
@@ -169,10 +166,10 @@ include __DIR__ . '/includes/header.php';
 
           <?php if ($vaga['empresa_desc']): ?>
           <div class="job-section">
-            <h3>🏢 Sobre a <?= htmlspecialchars($vaga['nome_empresa']) ?></h3>
+            <h3>Sobre a <?= htmlspecialchars($vaga['nome_empresa']) ?></h3>
             <p><?= nl2br(htmlspecialchars($vaga['empresa_desc'])) ?></p>
             <?php if ($vaga['site']): ?>
-              <a href="<?= htmlspecialchars($vaga['site']) ?>" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:12px;">🌐 Site da empresa</a>
+              <a href="<?= htmlspecialchars($vaga['site']) ?>" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:12px;">Site da empresa</a>
             <?php endif; ?>
           </div>
           <?php endif; ?>
@@ -212,17 +209,17 @@ include __DIR__ . '/includes/header.php';
 
           <?php if ($jaCandidatou): ?>
             <div class="alert alert-success">
-              ✅ Você já se candidatou!
+              Você já se candidatou!
             </div>
             <a href="/teste/dashboard/aluno.php" class="btn btn-ghost btn-block">Ver minhas candidaturas</a>
           <?php elseif (isLoggedIn() && isAluno()): ?>
             <form method="POST">
               <div class="form-group">
                 <label class="form-label">Carta de apresentação (opcional)</label>
-                <textarea name="carta" class="form-control" rows="5" placeholder="Apresente-se brevemente, destaque suas habilidades e por que você é o candidato ideal..."></textarea>
+                <textarea name="carta" class="form-control" rows="5" placeholder="Conte por que você quer essa vaga..."></textarea>
               </div>
               <button type="submit" name="candidatar" class="btn btn-primary btn-block btn-lg">
-                ⚡ Candidatar-se agora
+                Candidatar-se agora
               </button>
             </form>
           <?php elseif (isLoggedIn() && isEmpresa()): ?>
@@ -231,7 +228,7 @@ include __DIR__ . '/includes/header.php';
             </div>
           <?php else: ?>
             <a href="/teste/login.php" class="btn btn-primary btn-block btn-lg" style="margin-bottom:10px;">
-              🔐 Entrar para se candidatar
+              Entrar para se candidatar
             </a>
             <a href="/teste/register.php" class="btn btn-secondary btn-block">
               Criar conta grátis
@@ -241,18 +238,18 @@ include __DIR__ . '/includes/header.php';
           <div class="divider"></div>
 
           <div style="display:flex;flex-direction:column;gap:8px;font-size:.85rem;color:var(--gray-500);">
-            <div style="display:flex;align-items:center;gap:8px;">📅 Publicada em <?= date('d/m/Y', strtotime($vaga['criado_em'])) ?></div>
-            <div style="display:flex;align-items:center;gap:8px;">🏢 <?= htmlspecialchars($vaga['setor']) ?></div>
+            <div style="display:flex;align-items:center;gap:8px;">Publicada em <?= date('d/m/Y', strtotime($vaga['criado_em'])) ?></div>
+            <div style="display:flex;align-items:center;gap:8px;"><?= htmlspecialchars($vaga['setor']) ?></div>
           </div>
 
           <div class="divider"></div>
 
           <div style="display:flex;gap:8px;">
             <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="navigator.share ? navigator.share({title:'<?= htmlspecialchars($vaga['titulo']) ?>',url:window.location.href}) : showToast('Link copiado!','success') || navigator.clipboard.writeText(window.location.href)">
-              🔗 Compartilhar
+              Compartilhar
             </button>
             <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="showToast('Vaga salva!','success')">
-              🔖 Salvar
+              Salvar
             </button>
           </div>
         </div>

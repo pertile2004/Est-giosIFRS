@@ -5,33 +5,33 @@ require_once __DIR__ . '/config/database.php';
 
 $db = getDB();
 
-$q          = trim($_GET['q'] ?? '');
-$area       = $_GET['area'] ?? '';
+$q = trim($_GET['q'] ?? '');
+$area = $_GET['area'] ?? '';
 $modalidade = $_GET['modalidade'] ?? '';
-$cidade     = $_GET['cidade'] ?? '';
-$bolsa_min  = (int)($_GET['bolsa_min'] ?? 0);
-$page       = max(1, (int)($_GET['page'] ?? 1));
-$perPage    = 12;
+$cidade = $_GET['cidade'] ?? '';
+$bolsa_min = (int)($_GET['bolsa_min'] ?? 0);
+$page = max(1, (int)($_GET['page'] ?? 1));
+$perPage = 12;
 
-$where  = ['v.ativa = 1'];
+$where = ['v.ativa = 1'];
 $params = [];
 
 if ($q) {
-    $where[]  = '(v.titulo LIKE ? OR v.descricao LIKE ? OR e.nome_empresa LIKE ? OR v.area LIKE ?)';
-    $params   = array_merge($params, ["%$q%", "%$q%", "%$q%", "%$q%"]);
+    $where[] = '(v.titulo LIKE ? OR v.descricao LIKE ? OR e.nome_empresa LIKE ? OR v.area LIKE ?)';
+    $params = array_merge($params, ["%$q%", "%$q%", "%$q%", "%$q%"]);
 }
-if ($area)       { $where[] = 'v.area = ?';        $params[] = $area; }
-if ($modalidade) { $where[] = 'v.modalidade = ?';  $params[] = $modalidade; }
-if ($cidade)     { $where[] = 'v.cidade = ?';      $params[] = $cidade; }
-if ($bolsa_min)  { $where[] = 'v.bolsa >= ?';       $params[] = $bolsa_min; }
+if ($area) { $where[] = 'v.area = ?'; $params[] = $area; }
+if ($modalidade) { $where[] = 'v.modalidade = ?'; $params[] = $modalidade; }
+if ($cidade) { $where[] = 'v.cidade = ?'; $params[] = $cidade; }
+if ($bolsa_min) { $where[] = 'v.bolsa >= ?'; $params[] = $bolsa_min; }
 
 $whereSQL = implode(' AND ', $where);
 
 $stmtCount = $db->prepare("SELECT COUNT(*) FROM vagas v JOIN empresas e ON v.empresa_id = e.id WHERE $whereSQL");
 $stmtCount->execute($params);
-$total    = (int)$stmtCount->fetchColumn();
+$total = (int)$stmtCount->fetchColumn();
 $totalPages = (int)ceil($total / $perPage);
-$offset   = ($page - 1) * $perPage;
+$offset = ($page - 1) * $perPage;
 
 $stmt = $db->prepare("
     SELECT v.*, e.nome_empresa, e.logo, e.setor
@@ -59,7 +59,7 @@ function modalidadeBadge($m) {
     return match($m) { 'remoto' => 'badge-green', 'hibrido' => 'badge-blue', default => 'badge-gray' };
 }
 function modalidadeLabel($m) {
-    return match($m) { 'remoto' => '🌐 Remoto', 'hibrido' => '🔀 Híbrido', default => '🏢 Presencial' };
+    return match($m) { 'remoto' => 'Remoto', 'hibrido' => 'Híbrido', default => 'Presencial' };
 }
 
 include __DIR__ . '/includes/header.php';
@@ -99,37 +99,41 @@ include __DIR__ . '/includes/header.php';
         <span class="filter-label">Modalidade</span>
         <select name="modalidade" class="form-control">
           <option value="">Qualquer</option>
-          <option value="presencial" <?= $modalidade === 'presencial' ? 'selected' : '' ?>>🏢 Presencial</option>
-          <option value="remoto"     <?= $modalidade === 'remoto'     ? 'selected' : '' ?>>🌐 Remoto</option>
-          <option value="hibrido"    <?= $modalidade === 'hibrido'    ? 'selected' : '' ?>>🔀 Híbrido</option>
+          <option value="presencial" <?= $modalidade === 'presencial' ? 'selected' : '' ?>>Presencial</option>
+          <option value="remoto" <?= $modalidade === 'remoto' ? 'selected' : '' ?>>Remoto</option>
+          <option value="hibrido" <?= $modalidade === 'hibrido' ? 'selected' : '' ?>>Híbrido</option>
         </select>
       </div>
       <div class="filter-group">
         <span class="filter-label">Cidade</span>
         <select name="cidade" class="form-control">
           <option value="">Todas</option>
-          <?php foreach ($cidadesDestaque as $c): ?>
-            <option value="<?= htmlspecialchars($c) ?>" <?= $cidade === $c ? 'selected' : '' ?>>⭐ <?= htmlspecialchars($c) ?></option>
-          <?php endforeach; ?>
-          <?php foreach ($cidadesIFRS as $c): ?>
-            <option value="<?= htmlspecialchars($c) ?>" <?= $cidade === $c ? 'selected' : '' ?>><?= htmlspecialchars($c) ?></option>
-          <?php endforeach; ?>
+          <optgroup label="Destaque">
+            <?php foreach ($cidadesDestaque as $c): ?>
+              <option value="<?= htmlspecialchars($c) ?>" <?= $cidade === $c ? 'selected' : '' ?> style="color:#7C3AED;font-weight:600;background:#F5F3FF;"><?= htmlspecialchars($c) ?></option>
+            <?php endforeach; ?>
+          </optgroup>
+          <optgroup label="Outras cidades">
+            <?php foreach ($cidadesIFRS as $c): ?>
+              <option value="<?= htmlspecialchars($c) ?>" <?= $cidade === $c ? 'selected' : '' ?>><?= htmlspecialchars($c) ?></option>
+            <?php endforeach; ?>
+          </optgroup>
         </select>
       </div>
       <div class="filter-group">
         <span class="filter-label">Bolsa mínima</span>
         <select name="bolsa_min" class="form-control">
           <option value="0">Qualquer</option>
-          <option value="500"  <?= $bolsa_min === 500  ? 'selected' : '' ?>>R$ 500+</option>
+          <option value="500" <?= $bolsa_min === 500 ? 'selected' : '' ?>>R$ 500+</option>
           <option value="1000" <?= $bolsa_min === 1000 ? 'selected' : '' ?>>R$ 1.000+</option>
           <option value="1500" <?= $bolsa_min === 1500 ? 'selected' : '' ?>>R$ 1.500+</option>
           <option value="2000" <?= $bolsa_min === 2000 ? 'selected' : '' ?>>R$ 2.000+</option>
         </select>
       </div>
       <div style="display:flex;gap:8px;align-items:flex-end;">
-        <button type="submit" class="btn btn-primary">🔍 Filtrar</button>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
         <?php if ($q || $area || $modalidade || $cidade || $bolsa_min): ?>
-          <a href="/teste/vagas.php" class="btn btn-ghost">✕ Limpar</a>
+          <a href="/teste/vagas.php" class="btn btn-ghost">X Limpar</a>
         <?php endif; ?>
       </div>
     </form>
@@ -141,13 +145,13 @@ include __DIR__ . '/includes/header.php';
         </a>
       <?php endforeach; ?>
       <a href="?modalidade=remoto" class="badge badge-<?= $modalidade === 'remoto' ? 'green' : 'gray' ?>" style="padding:7px 16px;font-size:.85rem;cursor:pointer;text-decoration:none;">
-        🌐 Só Remoto
+        Só Remoto
       </a>
     </div>
 
     <?php if (empty($vagas)): ?>
       <div class="empty-state">
-        <div class="empty-icon">🔍</div>
+        <div class="empty-icon"></div>
         <h3>Nenhuma vaga encontrada</h3>
         <p>Tente mudar os filtros ou <a href="/teste/vagas.php">ver todas as vagas</a></p>
       </div>
@@ -177,7 +181,7 @@ include __DIR__ . '/includes/header.php';
           </div>
 
           <div class="job-card-infos">
-            <div class="job-card-info">📍 <?= htmlspecialchars($v['cidade']) ?>/<?= $v['estado'] ?></div>
+            <div class="job-card-info"><?= htmlspecialchars($v['cidade']) ?>/<?= $v['estado'] ?></div>
             <?php if ($v['carga_horaria']): ?>
               <div class="job-card-info">⏰ <?= $v['carga_horaria'] ?>h por semana</div>
             <?php endif; ?>
@@ -188,7 +192,7 @@ include __DIR__ . '/includes/header.php';
           <?php endif; ?>
 
           <div class="job-card-footer">
-            <span class="job-card-date">📅 <?= date('d/m', strtotime($v['criado_em'])) ?></span>
+            <span class="job-card-date"><?= date('d/m', strtotime($v['criado_em'])) ?></span>
             <a href="/teste/vaga.php?id=<?= $v['id'] ?>" class="btn btn-primary btn-sm">Ver Vaga →</a>
           </div>
         </div>

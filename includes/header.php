@@ -15,15 +15,14 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/teste/assets/css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="/teste/assets/img/logo.svg">
 </head>
 <body>
 
 <nav class="navbar">
   <div class="navbar-inner">
     <a href="/teste/" class="navbar-brand">
-      <div class="brand-icon">🎯</div>
-      InternSHIP <span class="brand-dot">Conect</span>
+      <img src="/teste/assets/img/logo.svg" alt="InternSHIP Connect" style="height:42px;display:block;">
     </a>
 
     <div class="navbar-nav">
@@ -48,22 +47,22 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
       <?php endif; ?>
     </div>
 
-    <button class="navbar-menu-btn" id="menu-btn">☰</button>
+    <button class="navbar-menu-btn" id="menu-btn"></button>
   </div>
 
   <div class="mobile-nav" id="mobile-nav">
-    <a href="/teste/vagas.php">🔍 Vagas</a>
+    <a href="/teste/vagas.php">Vagas</a>
     <?php if (isLoggedIn()): ?>
       <?php if (isAluno()): ?>
-        <a href="/teste/dashboard/aluno.php">📊 Meu Painel</a>
+        <a href="/teste/dashboard/aluno.php">Meu Painel</a>
       <?php else: ?>
-        <a href="/teste/dashboard/empresa.php">📊 Painel Empresa</a>
+        <a href="/teste/dashboard/empresa.php">Painel Empresa</a>
         <a href="/teste/empresa/publicar.php">+ Publicar Vaga</a>
       <?php endif; ?>
-      <a href="/teste/logout.php">👋 Sair</a>
+      <a href="/teste/logout.php">Sair</a>
     <?php else: ?>
-      <a href="/teste/login.php">🔐 Entrar</a>
-      <a href="/teste/register.php">✨ Cadastrar</a>
+      <a href="/teste/login.php">Entrar</a>
+      <a href="/teste/register.php">Cadastrar</a>
     <?php endif; ?>
   </div>
 </nav>

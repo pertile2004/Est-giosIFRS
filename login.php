@@ -28,7 +28,7 @@ include __DIR__ . '/includes/header.php';
       <a href="/teste/" style="display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:.9rem;margin-bottom:48px;text-decoration:none;">
         ← Voltar ao início
       </a>
-      <h2>Bem-vindo de volta! 👋</h2>
+      <h2>Bem-vindo de volta!</h2>
       <p>Entre na sua conta e continue sua jornada rumo ao estágio perfeito.</p>
       <div class="auth-features">
         <div class="auth-feature">
@@ -58,16 +58,15 @@ include __DIR__ . '/includes/header.php';
 
   <div class="auth-right">
     <div class="auth-form-wrap">
-      <div class="auth-logo">
-        <div class="brand-icon">🎯</div>
-        InternSHIP Conect
+      <div class="auth-logo" style="justify-content:center;margin-bottom:28px;">
+        <img src="/teste/assets/img/logo.svg" alt="InternSHIP Connect" style="height:48px;">
       </div>
 
       <h2 style="margin-bottom:6px;">Entrar na conta</h2>
       <p class="text-muted text-sm" style="margin-bottom:28px;">Digite suas credenciais para continuar</p>
 
       <?php if ($erro): ?>
-        <div class="alert alert-error">⚠️ <?= htmlspecialchars($erro) ?></div>
+        <div class="alert alert-error"><?= htmlspecialchars($erro) ?></div>
       <?php endif; ?>
 
       <form method="POST" action="">
