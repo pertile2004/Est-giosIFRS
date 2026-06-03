@@ -15,14 +15,14 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/teste/assets/css/style.css">
-  <link rel="icon" type="image/svg+xml" href="/teste/assets/img/logo.svg">
+  <link rel="icon" type="image/svg+xml" href="/teste/assets/img/logo-icon.svg">
 </head>
 <body>
 
 <nav class="navbar">
   <div class="navbar-inner">
     <a href="/teste/" class="navbar-brand">
-      <img src="/teste/assets/img/logo.svg" alt="InternSHIP Connect" style="height:42px;display:block;">
+      <img src="/teste/assets/img/logo.svg" alt="InternSHIP Connect" style="height:42px;width:auto;display:block;object-fit:contain;">
     </a>
 
     <div class="navbar-nav">

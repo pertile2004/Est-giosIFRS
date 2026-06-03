@@ -91,7 +91,7 @@ include __DIR__ . '/includes/header.php';
   <div class="auth-right" style="padding:32px 64px;overflow-y:auto;">
     <div class="auth-form-wrap">
       <div class="auth-logo" style="justify-content:center;margin-bottom:24px;">
-        <img src="/teste/assets/img/logo.svg" alt="InternSHIP Connect" style="height:48px;">
+        <img src="/teste/assets/img/logo.svg" alt="InternSHIP Connect" style="height:48px;width:auto;object-fit:contain;">
       </div>
 
       <h2 style="margin-bottom:6px;">Criar conta grátis</h2>

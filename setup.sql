@@ -73,6 +73,28 @@ CREATE TABLE IF NOT EXISTS candidaturas (
     FOREIGN KEY (vaga_id) REFERENCES vagas(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS password_resets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    used TINYINT(1) DEFAULT 0,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    INDEX idx_token (token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS oauth_accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    provider ENUM('google','github') NOT NULL,
+    provider_user_id VARCHAR(100) NOT NULL,
+    email VARCHAR(200),
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_provider_user (provider, provider_user_id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Senha de todos os usuarios seed: senha123
 INSERT INTO usuarios (nome, email, senha, tipo) VALUES
 ('Tech Solutions Ltda', 'rh@techsolutions.com', '$2y$10$fdi6dZAy.8whVjkaSPy36udFh43DjplufxfAqobwMmjcuaD95cmm.', 'empresa'),
