@@ -16,6 +16,13 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/teste/assets/css/style.css">
   <link rel="icon" type="image/svg+xml" href="/teste/assets/img/logo-icon.svg">
+  <script>
+    // Aplica tema antes do render para evitar flash
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
 </head>
 <body>
 
@@ -33,6 +40,9 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     </div>
 
     <div class="navbar-actions">
+      <button class="theme-toggle" id="theme-toggle" title="Alternar tema" aria-label="Alternar tema claro/escuro">
+        <span id="theme-icon">&#9790;</span>
+      </button>
       <?php if (isLoggedIn()): ?>
         <?php if (isAluno()): ?>
           <a href="/teste/dashboard/aluno.php" class="btn btn-ghost btn-sm">Meu Painel</a>

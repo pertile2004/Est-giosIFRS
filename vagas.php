@@ -9,7 +9,13 @@ $q = trim($_GET['q'] ?? '');
 $area = $_GET['area'] ?? '';
 $modalidade = $_GET['modalidade'] ?? '';
 $cidade = $_GET['cidade'] ?? '';
-$bolsa_min = (int)($_GET['bolsa_min'] ?? 0);
+$bolsaSliderMin = 0;
+$bolsaSliderMax = 3000;
+$bolsaSliderStep = 100;
+$bolsa_min = max($bolsaSliderMin, (int)($_GET['bolsa_min'] ?? 0));
+$bolsa_max = (int)($_GET['bolsa_max'] ?? $bolsaSliderMax);
+if ($bolsa_max <= 0 || $bolsa_max > $bolsaSliderMax) $bolsa_max = $bolsaSliderMax;
+if ($bolsa_min > $bolsa_max) $bolsa_min = 0;
 $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 12;
 
@@ -23,7 +29,8 @@ if ($q) {
 if ($area) { $where[] = 'v.area = ?'; $params[] = $area; }
 if ($modalidade) { $where[] = 'v.modalidade = ?'; $params[] = $modalidade; }
 if ($cidade) { $where[] = 'v.cidade = ?'; $params[] = $cidade; }
-if ($bolsa_min) { $where[] = 'v.bolsa >= ?'; $params[] = $bolsa_min; }
+if ($bolsa_min > 0) { $where[] = 'v.bolsa >= ?'; $params[] = $bolsa_min; }
+if ($bolsa_max < $bolsaSliderMax) { $where[] = 'v.bolsa <= ?'; $params[] = $bolsa_max; }
 
 $whereSQL = implode(' AND ', $where);
 
@@ -120,19 +127,29 @@ include __DIR__ . '/includes/header.php';
           </optgroup>
         </select>
       </div>
-      <div class="filter-group">
-        <span class="filter-label">Bolsa mínima</span>
-        <select name="bolsa_min" class="form-control">
-          <option value="0">Qualquer</option>
-          <option value="500" <?= $bolsa_min === 500 ? 'selected' : '' ?>>R$ 500+</option>
-          <option value="1000" <?= $bolsa_min === 1000 ? 'selected' : '' ?>>R$ 1.000+</option>
-          <option value="1500" <?= $bolsa_min === 1500 ? 'selected' : '' ?>>R$ 1.500+</option>
-          <option value="2000" <?= $bolsa_min === 2000 ? 'selected' : '' ?>>R$ 2.000+</option>
-        </select>
+      <div class="filter-group" style="flex:1.6;">
+        <span class="filter-label">Faixa de bolsa</span>
+        <div class="range-slider"
+             data-range-slider
+             data-min="<?= $bolsaSliderMin ?>"
+             data-max="<?= $bolsaSliderMax ?>"
+             data-step="<?= $bolsaSliderStep ?>">
+          <div class="range-slider-track">
+            <div class="range-slider-fill"></div>
+            <input class="range-min" type="range" min="<?= $bolsaSliderMin ?>" max="<?= $bolsaSliderMax ?>" step="<?= $bolsaSliderStep ?>" value="<?= $bolsa_min ?>" aria-label="Bolsa mínima">
+            <input class="range-max" type="range" min="<?= $bolsaSliderMin ?>" max="<?= $bolsaSliderMax ?>" step="<?= $bolsaSliderStep ?>" value="<?= $bolsa_max ?>" aria-label="Bolsa máxima">
+          </div>
+          <div class="range-slider-values">
+            <span class="range-label-min">R$ <?= number_format($bolsa_min, 0, ',', '.') ?></span>
+            <span class="range-label-max">R$ <?= number_format($bolsa_max, 0, ',', '.') ?><?= $bolsa_max >= $bolsaSliderMax ? '+' : '' ?></span>
+          </div>
+          <input type="hidden" name="bolsa_min" value="<?= $bolsa_min ?>">
+          <input type="hidden" name="bolsa_max" value="<?= $bolsa_max ?>">
+        </div>
       </div>
       <div style="display:flex;gap:8px;align-items:flex-end;">
         <button type="submit" class="btn btn-primary">Filtrar</button>
-        <?php if ($q || $area || $modalidade || $cidade || $bolsa_min): ?>
+        <?php if ($q || $area || $modalidade || $cidade || $bolsa_min || $bolsa_max < $bolsaSliderMax): ?>
           <a href="/teste/vagas.php" class="btn btn-ghost">X Limpar</a>
         <?php endif; ?>
       </div>
