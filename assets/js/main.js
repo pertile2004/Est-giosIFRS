@@ -133,3 +133,86 @@ document.querySelectorAll('.navbar-nav a, .sidebar-nav a').forEach(link => {
     link.classList.add('active');
   }
 });
+
+// ── Theme toggle (dark mode) ──
+(function() {
+  const SUN = '☀';  // ☀
+  const MOON = '☾'; // ☾
+  const btn = document.getElementById('theme-toggle');
+  const icon = document.getElementById('theme-icon');
+  const apply = (theme) => {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      if (icon) icon.textContent = SUN;
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      if (icon) icon.textContent = MOON;
+    }
+  };
+  apply(localStorage.getItem('theme') === 'dark' ? 'dark' : 'light');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', next);
+      apply(next);
+    });
+  }
+})();
+
+// ── Banner LGPD ──
+(function() {
+  const banner = document.getElementById('lgpd-banner');
+  if (!banner) return;
+  const consent = localStorage.getItem('lgpd-consent');
+  if (!consent) {
+    setTimeout(() => banner.classList.add('show'), 600);
+  }
+  const aceitar = document.getElementById('lgpd-aceitar');
+  const recusar = document.getElementById('lgpd-recusar');
+  if (aceitar) aceitar.addEventListener('click', () => {
+    localStorage.setItem('lgpd-consent', 'all');
+    banner.classList.remove('show');
+  });
+  if (recusar) recusar.addEventListener('click', () => {
+    localStorage.setItem('lgpd-consent', 'essentials');
+    banner.classList.remove('show');
+  });
+})();
+
+// ── Slider duplo de bolsa (vagas.php) ──
+(function() {
+  const wrap = document.querySelector('[data-range-slider]');
+  if (!wrap) return;
+  const min = parseInt(wrap.dataset.min, 10);
+  const max = parseInt(wrap.dataset.max, 10);
+  const step = parseInt(wrap.dataset.step, 10) || 100;
+  const inputMin = wrap.querySelector('input[name="bolsa_min"]');
+  const inputMax = wrap.querySelector('input[name="bolsa_max"]');
+  const rangeMin = wrap.querySelector('.range-min');
+  const rangeMax = wrap.querySelector('.range-max');
+  const fill = wrap.querySelector('.range-slider-fill');
+  const labelMin = wrap.querySelector('.range-label-min');
+  const labelMax = wrap.querySelector('.range-label-max');
+  const fmt = (n) => 'R$ ' + n.toLocaleString('pt-BR');
+
+  function refresh() {
+    let lo = parseInt(rangeMin.value, 10);
+    let hi = parseInt(rangeMax.value, 10);
+    if (lo > hi - step) lo = hi - step;
+    if (hi < lo + step) hi = lo + step;
+    rangeMin.value = lo;
+    rangeMax.value = hi;
+    inputMin.value = lo;
+    inputMax.value = hi;
+    const pctLo = ((lo - min) / (max - min)) * 100;
+    const pctHi = ((hi - min) / (max - min)) * 100;
+    fill.style.left = pctLo + '%';
+    fill.style.width = (pctHi - pctLo) + '%';
+    labelMin.textContent = fmt(lo);
+    labelMax.textContent = hi >= max ? fmt(hi) + '+' : fmt(hi);
+  }
+  rangeMin.addEventListener('input', refresh);
+  rangeMax.addEventListener('input', refresh);
+  refresh();
+})();
