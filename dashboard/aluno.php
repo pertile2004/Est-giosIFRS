@@ -7,6 +7,7 @@ $db = getDB();
 $alunoId = $_SESSION['perfil_id'];
 
 $successMsg = '';
+$erroMsg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $curso = trim($_POST['curso'] ?? '');
     $universidade = trim($_POST['universidade'] ?? '');
@@ -15,14 +16,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $estado = trim($_POST['estado'] ?? '');
     $sobre = trim($_POST['sobre'] ?? '');
     $linkedin = trim($_POST['linkedin'] ?? '');
+    $github = trim($_POST['github'] ?? '');
 
-    $db->prepare("UPDATE alunos SET curso=?,universidade=?,semestre=?,cidade=?,estado=?,sobre=?,linkedin=? WHERE id=?")
-       ->execute([$curso, $universidade, $semestre, $cidade, $estado, $sobre, $linkedin, $alunoId]);
+    $db->prepare("UPDATE alunos SET curso=?,universidade=?,semestre=?,cidade=?,estado=?,sobre=?,linkedin=?,github=? WHERE id=?")
+       ->execute([$curso, $universidade, $semestre, $cidade, $estado, $sobre, $linkedin, $github, $alunoId]);
     $db->prepare("UPDATE usuarios SET nome=? WHERE id=?")
        ->execute([trim($_POST['nome'] ?? ''), $_SESSION['usuario_id']]);
     $_SESSION['nome'] = trim($_POST['nome'] ?? '');
     $successMsg = 'Perfil atualizado com sucesso!';
+
+    if (!empty($_FILES['curriculo']) && $_FILES['curriculo']['error'] === UPLOAD_ERR_OK) {
+        $salvo = salvarCurriculoAluno($alunoId, $_FILES['curriculo']);
+        if ($salvo) {
+            $successMsg .= ' Currículo enviado.';
+        } else {
+            $erroMsg = 'Não foi possível enviar o currículo. Verifique se é um PDF válido com até 3 MB.';
+        }
+    }
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_curriculo'])) {
+    $stmt = $db->prepare("SELECT curriculo_path FROM alunos WHERE id = ?");
+    $stmt->execute([$alunoId]);
+    $caminho = $stmt->fetchColumn();
+    if ($caminho) {
+        $arq = __DIR__ . '/../' . ltrim($caminho, '/');
+        if (is_file($arq)) @unlink($arq);
+        $db->prepare("UPDATE alunos SET curriculo_path = NULL WHERE id = ?")->execute([$alunoId]);
+        $successMsg = 'Currículo removido.';
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_favorito'])) {
+    $vagaId = (int)$_POST['vaga_id'];
+    toggleFavorito($alunoId, $vagaId);
+    header('Location: /teste/dashboard/aluno.php#favoritas');
+    exit;
+}
+
+$favoritas = $db->prepare("
+    SELECT v.id, v.titulo, v.bolsa, v.modalidade, v.cidade, v.estado, v.area, e.nome_empresa
+    FROM vagas_favoritas f
+    JOIN vagas v ON f.vaga_id = v.id
+    JOIN empresas e ON v.empresa_id = e.id
+    WHERE f.aluno_id = ? AND v.ativa = 1
+    ORDER BY f.criado_em DESC
+");
+$favoritas->execute([$alunoId]);
+$favoritas = $favoritas->fetchAll();
 
 $aluno = $db->prepare("SELECT a.*, u.nome, u.email FROM alunos a JOIN usuarios u ON a.usuario_id = u.id WHERE a.id = ?");
 $aluno->execute([$alunoId]);
@@ -180,6 +221,39 @@ include __DIR__ . '/../includes/header.php';
       <?php endif; ?>
     </div>
 
+    <div class="card mb-6" id="favoritas">
+      <div class="card-header">
+        <h3>Vagas Salvas</h3>
+        <span class="text-muted text-sm"><?= count($favoritas) ?> salva<?= count($favoritas) === 1 ? '' : 's' ?></span>
+      </div>
+      <?php if (empty($favoritas)): ?>
+        <div class="card-body">
+          <p class="text-muted text-sm">Você ainda não salvou nenhuma vaga. Clique em "Salvar" em qualquer vaga para guardá-la aqui.</p>
+        </div>
+      <?php else: ?>
+        <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <?php foreach ($favoritas as $v): ?>
+            <div style="padding:14px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                <div style="flex:1;">
+                  <div style="font-weight:700;color:var(--gray-900);font-size:.92rem;"><?= htmlspecialchars($v['titulo']) ?></div>
+                  <div style="font-size:.8rem;color:var(--gray-500);margin:2px 0 8px;"><?= htmlspecialchars($v['nome_empresa']) ?> · <?= htmlspecialchars($v['cidade']) ?>/<?= $v['estado'] ?></div>
+                </div>
+                <form method="POST" style="margin:0;">
+                  <input type="hidden" name="vaga_id" value="<?= (int)$v['id'] ?>">
+                  <button type="submit" name="remover_favorito" value="1" class="btn btn-ghost btn-sm" title="Remover dos favoritos" style="padding:4px 8px;">×</button>
+                </form>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:700;color:var(--accent);font-size:.92rem;">R$ <?= number_format($v['bolsa'], 0, ',', '.') ?></span>
+                <a href="/teste/vaga.php?id=<?= (int)$v['id'] ?>" class="btn btn-primary btn-sm">Ver vaga</a>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </div>
+
     <div class="card mb-6">
       <div class="card-header">
         <h3>Vagas Recomendadas</h3>
@@ -209,7 +283,10 @@ include __DIR__ . '/../includes/header.php';
         </span>
       </div>
       <div class="card-body">
-        <form method="POST">
+        <?php if ($erroMsg): ?>
+          <div class="alert alert-error"><?= htmlspecialchars($erroMsg) ?></div>
+        <?php endif; ?>
+        <form method="POST" enctype="multipart/form-data">
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Nome completo</label>
@@ -248,10 +325,29 @@ include __DIR__ . '/../includes/header.php';
             <label class="form-label">Sobre mim</label>
             <textarea name="sobre" class="form-control" rows="4" placeholder="Apresente-se brevemente: habilidades, experiências, objetivos..."><?= htmlspecialchars($aluno['sobre'] ?? '') ?></textarea>
           </div>
-          <div class="form-group">
-            <label class="form-label">LinkedIn</label>
-            <input type="url" name="linkedin" class="form-control" placeholder="https://linkedin.com/in/seu-perfil" value="<?= htmlspecialchars($aluno['linkedin'] ?? '') ?>">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">LinkedIn</label>
+              <input type="url" name="linkedin" class="form-control" placeholder="https://linkedin.com/in/seu-perfil" value="<?= htmlspecialchars($aluno['linkedin'] ?? '') ?>">
+            </div>
+            <div class="form-group">
+              <label class="form-label">GitHub</label>
+              <input type="url" name="github" class="form-control" placeholder="https://github.com/seu-user" value="<?= htmlspecialchars($aluno['github'] ?? '') ?>">
+            </div>
           </div>
+
+          <div class="form-group">
+            <label class="form-label">Currículo (PDF, máx. 3MB)</label>
+            <?php if (!empty($aluno['curriculo_path'])): ?>
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                <a href="/teste/<?= htmlspecialchars($aluno['curriculo_path']) ?>" target="_blank" class="btn btn-ghost btn-sm">Baixar currículo atual</a>
+                <button type="submit" name="remover_curriculo" value="1" class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="return confirm('Remover o currículo atual?')">Remover</button>
+              </div>
+            <?php endif; ?>
+            <input type="file" name="curriculo" class="form-control" accept="application/pdf">
+            <div class="form-hint">Enviar um novo PDF substitui o anterior.</div>
+          </div>
+
           <button type="submit" name="update_profile" class="btn btn-primary">Salvar perfil</button>
         </form>
       </div>

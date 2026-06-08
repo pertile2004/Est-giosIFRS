@@ -27,18 +27,6 @@
   </div>
 </footer>
 
-<div class="lgpd-banner" id="lgpd-banner" role="dialog" aria-label="Aviso de cookies e privacidade">
-  <p>
-    Usamos cookies essenciais para manter sua sessão e preferências (como o tema escuro).
-    Ao continuar navegando você concorda com a nossa
-    <a href="/teste/privacidade.php">Política de Privacidade</a>.
-  </p>
-  <div class="lgpd-actions">
-    <button class="btn-recusar" id="lgpd-recusar" type="button">Apenas essenciais</button>
-    <button class="btn-aceitar" id="lgpd-aceitar" type="button">Aceitar todos</button>
-  </div>
-</div>
-
 <script src="/teste/assets/js/main.js"></script>
 </body>
 </html>
