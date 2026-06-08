@@ -32,7 +32,7 @@ include __DIR__ . '/includes/header.php';
       <p>Entre na sua conta e continue sua jornada rumo ao estágio perfeito.</p>
       <div class="auth-features">
         <div class="auth-feature">
-          <div class="auth-feature-icon">🎯</div>
+          <div class="auth-feature-icon"></div>
           <div class="auth-feature-text">
             <strong>Vagas exclusivas</strong>
             <span>Acesse vagas que não estão em lugar nenhum</span>

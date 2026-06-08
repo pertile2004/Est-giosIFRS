@@ -160,26 +160,6 @@ document.querySelectorAll('.navbar-nav a, .sidebar-nav a').forEach(link => {
   }
 })();
 
-// ── Banner LGPD ──
-(function() {
-  const banner = document.getElementById('lgpd-banner');
-  if (!banner) return;
-  const consent = localStorage.getItem('lgpd-consent');
-  if (!consent) {
-    setTimeout(() => banner.classList.add('show'), 600);
-  }
-  const aceitar = document.getElementById('lgpd-aceitar');
-  const recusar = document.getElementById('lgpd-recusar');
-  if (aceitar) aceitar.addEventListener('click', () => {
-    localStorage.setItem('lgpd-consent', 'all');
-    banner.classList.remove('show');
-  });
-  if (recusar) recusar.addEventListener('click', () => {
-    localStorage.setItem('lgpd-consent', 'essentials');
-    banner.classList.remove('show');
-  });
-})();
-
 // ── Slider duplo de bolsa (vagas.php) ──
 (function() {
   const wrap = document.querySelector('[data-range-slider]');

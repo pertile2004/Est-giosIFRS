@@ -111,37 +111,6 @@ html[data-theme="dark"] .footer { background: #0F172A; }
 html[data-theme="dark"] .theme-toggle { color: #fff; border-color: var(--border); }
 html[data-theme="dark"] .theme-toggle:hover { background: var(--bg-soft); }
 
-/* Banner LGPD */
-.lgpd-banner {
-  position: fixed;
-  left: 16px; right: 16px; bottom: 16px;
-  background: var(--gray-900);
-  color: rgba(255,255,255,.9);
-  padding: 14px 20px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  z-index: 200;
-  display: none;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  max-width: 880px;
-  margin: 0 auto;
-}
-.lgpd-banner.show { display: flex; }
-.lgpd-banner p { flex: 1; min-width: 240px; font-size: .88rem; line-height: 1.55; margin: 0; }
-.lgpd-banner a { color: var(--primary-light); text-decoration: underline; }
-.lgpd-banner .lgpd-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.lgpd-banner button { font-family: inherit; cursor: pointer; }
-.lgpd-banner .btn-aceitar {
-  background: var(--primary); color: #fff;
-  border: none; padding: 8px 16px; border-radius: var(--radius-sm); font-weight: 600;
-}
-.lgpd-banner .btn-recusar {
-  background: transparent; color: rgba(255,255,255,.7);
-  border: 1px solid rgba(255,255,255,.2); padding: 8px 16px; border-radius: var(--radius-sm);
-}
-
 /* Slider de bolsa */
 .range-slider { display: flex; flex-direction: column; gap: 6px; min-width: 200px; }
 .range-slider-track {

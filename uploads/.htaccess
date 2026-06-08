@@ -1,0 +1,5 @@
+# Permite acesso direto aos arquivos (necessario para download de CV).
+# Impede execucao de PHP nesta pasta por seguranca.
+<FilesMatch "\.(php|phtml|php3|php4|php5|phar)$">
+  Require all denied
+</FilesMatch>

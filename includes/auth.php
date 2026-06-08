@@ -160,6 +160,98 @@ function redefinirSenha($token, $novaSenha) {
 }
 
 /**
+ * Salva um arquivo de curriculo (PDF) para o aluno.
+ * Retorna o caminho relativo gravado no banco, ou null em caso de erro.
+ *
+ * Validacoes: extensao .pdf, MIME application/pdf, tamanho max 3MB.
+ */
+function salvarCurriculoAluno($alunoId, $arquivo) {
+    if (!$arquivo || $arquivo['error'] !== UPLOAD_ERR_OK) return null;
+    if ($arquivo['size'] > 3 * 1024 * 1024) return null;
+
+    $ext = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
+    if ($ext !== 'pdf') return null;
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $arquivo['tmp_name']);
+    finfo_close($finfo);
+    if ($mime !== 'application/pdf') return null;
+
+    $destDir = __DIR__ . '/../uploads/curriculos';
+    if (!is_dir($destDir)) @mkdir($destDir, 0775, true);
+
+    $nome = 'cv_' . $alunoId . '_' . bin2hex(random_bytes(8)) . '.pdf';
+    $destPath = $destDir . '/' . $nome;
+    if (!move_uploaded_file($arquivo['tmp_name'], $destPath)) return null;
+
+    $db = getDB();
+    // Apaga curriculo antigo, se houver, para nao acumular lixo
+    $stmt = $db->prepare("SELECT curriculo_path FROM alunos WHERE id = ?");
+    $stmt->execute([$alunoId]);
+    $antigo = $stmt->fetchColumn();
+    if ($antigo) {
+        $caminhoAntigo = __DIR__ . '/../' . ltrim($antigo, '/');
+        if (is_file($caminhoAntigo)) @unlink($caminhoAntigo);
+    }
+
+    $relativo = 'uploads/curriculos/' . $nome;
+    $db->prepare("UPDATE alunos SET curriculo_path = ? WHERE id = ?")
+       ->execute([$relativo, $alunoId]);
+    return $relativo;
+}
+
+/**
+ * Alterna o status de favorito de uma vaga para um aluno.
+ * Retorna true se a vaga ficou favoritada, false se foi removida dos favoritos.
+ */
+function toggleFavorito($alunoId, $vagaId) {
+    $db = getDB();
+    $stmt = $db->prepare("SELECT id FROM vagas_favoritas WHERE aluno_id = ? AND vaga_id = ?");
+    $stmt->execute([$alunoId, $vagaId]);
+    if ($stmt->fetch()) {
+        $db->prepare("DELETE FROM vagas_favoritas WHERE aluno_id = ? AND vaga_id = ?")
+           ->execute([$alunoId, $vagaId]);
+        return false;
+    }
+    $db->prepare("INSERT INTO vagas_favoritas (aluno_id, vaga_id) VALUES (?, ?)")
+       ->execute([$alunoId, $vagaId]);
+    return true;
+}
+
+function isVagaFavorita($alunoId, $vagaId) {
+    if (!$alunoId) return false;
+    $db = getDB();
+    $stmt = $db->prepare("SELECT 1 FROM vagas_favoritas WHERE aluno_id = ? AND vaga_id = ?");
+    $stmt->execute([$alunoId, $vagaId]);
+    return (bool)$stmt->fetchColumn();
+}
+
+function getIdsVagasFavoritas($alunoId) {
+    if (!$alunoId) return [];
+    $db = getDB();
+    $stmt = $db->prepare("SELECT vaga_id FROM vagas_favoritas WHERE aluno_id = ?");
+    $stmt->execute([$alunoId]);
+    return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+}
+
+/**
+ * Verifica se a empresa pode visualizar o perfil de um aluno
+ * (so se o aluno se candidatou a alguma vaga dessa empresa).
+ */
+function empresaPodeVerAluno($empresaId, $alunoId) {
+    $db = getDB();
+    $stmt = $db->prepare("
+        SELECT 1
+          FROM candidaturas c
+          JOIN vagas v ON v.id = c.vaga_id
+         WHERE c.aluno_id = ? AND v.empresa_id = ?
+         LIMIT 1
+    ");
+    $stmt->execute([$alunoId, $empresaId]);
+    return (bool)$stmt->fetchColumn();
+}
+
+/**
  * Autentica diretamente um usuario pelo ID (usado apos OAuth).
  * Espelha o que login() faz, sem checar senha.
  */

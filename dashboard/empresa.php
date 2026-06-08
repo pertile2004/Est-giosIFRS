@@ -22,7 +22,7 @@ $vagas->execute([$empresaId]);
 $vagas = $vagas->fetchAll();
 
 $recentes = $db->prepare("
-    SELECT c.*, v.titulo AS vaga_titulo, u.nome AS aluno_nome, al.curso, al.universidade
+    SELECT c.*, v.titulo AS vaga_titulo, u.nome AS aluno_nome, al.id AS aluno_id, al.curso, al.universidade, al.curriculo_path
     FROM candidaturas c
     JOIN vagas v ON c.vaga_id = v.id
     JOIN alunos al ON c.aluno_id = al.id
@@ -234,7 +234,12 @@ include __DIR__ . '/../includes/header.php';
               <?php foreach ($recentes as $c): ?>
               <tr>
                 <td>
-                  <div class="td-title"><?= htmlspecialchars($c['aluno_nome']) ?></div>
+                  <a href="/teste/perfil/aluno.php?id=<?= (int)$c['aluno_id'] ?>" class="td-title" style="color:var(--primary);text-decoration:none;">
+                    <?= htmlspecialchars($c['aluno_nome']) ?>
+                  </a>
+                  <?php if (!empty($c['curriculo_path'])): ?>
+                    <a href="/teste/<?= htmlspecialchars($c['curriculo_path']) ?>" target="_blank" rel="noopener" style="font-size:.75rem;color:var(--gray-500);margin-left:6px;">[CV]</a>
+                  <?php endif; ?>
                 </td>
                 <td style="font-size:.88rem;"><?= htmlspecialchars($c['vaga_titulo']) ?></td>
                 <td style="font-size:.82rem;color:var(--gray-500);">

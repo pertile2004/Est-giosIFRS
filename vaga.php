@@ -44,6 +44,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['candidatar'])) {
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_favorito'])) {
+    if (!isLoggedIn()) {
+        header('Location: /teste/login.php');
+        exit;
+    }
+    if (isAluno()) {
+        toggleFavorito($_SESSION['perfil_id'], $id);
+    }
+    header('Location: /teste/vaga.php?id=' . $id);
+    exit;
+}
+
+$ehFavorita = false;
+if (isLoggedIn() && isAluno()) {
+    $ehFavorita = isVagaFavorita($_SESSION['perfil_id'], $id);
+}
+
 $similares = $db->prepare("
     SELECT v.id, v.titulo, v.bolsa, v.modalidade, e.nome_empresa
     FROM vagas v JOIN empresas e ON v.empresa_id = e.id
@@ -248,9 +265,15 @@ include __DIR__ . '/includes/header.php';
             <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="navigator.share ? navigator.share({title:'<?= htmlspecialchars($vaga['titulo']) ?>',url:window.location.href}) : showToast('Link copiado!','success') || navigator.clipboard.writeText(window.location.href)">
               Compartilhar
             </button>
-            <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="showToast('Vaga salva!','success')">
-              Salvar
-            </button>
+            <?php if (isLoggedIn() && isAluno()): ?>
+              <form method="POST" style="flex:1;margin:0;">
+                <button type="submit" name="toggle_favorito" value="1" class="btn btn-ghost btn-sm" style="width:100%;<?= $ehFavorita ? 'color:var(--primary);border-color:var(--primary);' : '' ?>">
+                  <?= $ehFavorita ? 'Salva ★' : 'Salvar' ?>
+                </button>
+              </form>
+            <?php else: ?>
+              <a href="/teste/login.php" class="btn btn-ghost btn-sm" style="flex:1;text-align:center;">Salvar</a>
+            <?php endif; ?>
           </div>
         </div>
       </div>

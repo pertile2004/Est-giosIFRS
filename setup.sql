@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS alunos (
     linkedin VARCHAR(255),
     github VARCHAR(255),
     foto VARCHAR(255),
+    curriculo_path VARCHAR(255),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -93,6 +94,16 @@ CREATE TABLE IF NOT EXISTS oauth_accounts (
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_provider_user (provider, provider_user_id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS vagas_favoritas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    aluno_id INT NOT NULL,
+    vaga_id INT NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_favorita (aluno_id, vaga_id),
+    FOREIGN KEY (aluno_id) REFERENCES alunos(id) ON DELETE CASCADE,
+    FOREIGN KEY (vaga_id) REFERENCES vagas(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Senha de todos os usuarios seed: senha123
