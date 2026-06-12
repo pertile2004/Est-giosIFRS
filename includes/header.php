@@ -44,6 +44,9 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
         <span id="theme-icon">&#9790;</span>
       </button>
       <?php if (isLoggedIn()): ?>
+        <?php if (isAdmin()): ?>
+          <a href="/teste/admin/" class="btn btn-ghost btn-sm" style="color:var(--primary);">Admin</a>
+        <?php endif; ?>
         <?php if (isAluno()): ?>
           <a href="/teste/dashboard/aluno.php" class="btn btn-ghost btn-sm">Meu Painel</a>
         <?php else: ?>

@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email VARCHAR(200) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
     tipo ENUM('aluno','empresa') NOT NULL,
+    is_admin TINYINT(1) DEFAULT 0,
+    ativo TINYINT(1) DEFAULT 1,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -58,6 +60,7 @@ CREATE TABLE IF NOT EXISTS vagas (
     carga_horaria INT,
     ativa TINYINT(1) DEFAULT 1,
     destaque TINYINT(1) DEFAULT 0,
+    views INT DEFAULT 0,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -107,6 +110,8 @@ CREATE TABLE IF NOT EXISTS vagas_favoritas (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Senha de todos os usuarios seed: senha123
+-- Para promover qualquer usuario a admin depois:
+--   UPDATE usuarios SET is_admin = 1 WHERE email = 'rh@techsolutions.com';
 INSERT INTO usuarios (nome, email, senha, tipo) VALUES
 ('Tech Solutions Ltda', 'rh@techsolutions.com', '$2y$10$fdi6dZAy.8whVjkaSPy36udFh43DjplufxfAqobwMmjcuaD95cmm.', 'empresa'),
 ('InovaCorp', 'rh@inovacorp.com.br', '$2y$10$mGniEL9zZ09CsujHtxAa9.B3n39cH.esZ3R5g9029AwxrgnLdDhWy', 'empresa'),

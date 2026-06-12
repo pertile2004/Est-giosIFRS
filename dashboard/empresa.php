@@ -54,6 +54,28 @@ $totalVagas = count($vagas);
 $vagasAtivas = count(array_filter($vagas, fn($v) => $v['ativa']));
 $totalCand = array_sum(array_column($vagas, 'total_cand'));
 $pendentes = array_sum(array_column($vagas, 'pendentes'));
+$totalViews = (int)array_sum(array_map(fn($v) => (int)($v['views'] ?? 0), $vagas));
+
+// CNPJ
+$cnpjResultado = null;
+$cnpjErro = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['consultar_cnpj'])) {
+    $cnpjEntrada = trim($_POST['cnpj'] ?? '');
+    $cnpjResultado = consultarCNPJ($cnpjEntrada);
+    if (!$cnpjResultado) {
+        $cnpjErro = 'Não foi possível consultar este CNPJ (formato inválido ou CNPJ inexistente).';
+    } else {
+        // Atualiza dados da empresa com o que veio da Receita
+        $stmt = $db->prepare("UPDATE empresas SET cnpj=?, nome_empresa=?, cidade=COALESCE(NULLIF(?,''), cidade), estado=COALESCE(NULLIF(?,''), estado) WHERE id=?");
+        $stmt->execute([
+            preg_replace('/\D/', '', $cnpjEntrada),
+            $cnpjResultado['razao_social'] ?: $cnpjResultado['nome_fantasia'],
+            $cnpjResultado['municipio'],
+            $cnpjResultado['uf'],
+            $empresaId,
+        ]);
+    }
+}
 
 function statusBadge($s) {
     return match($s) {
@@ -124,7 +146,7 @@ include __DIR__ . '/../includes/header.php';
       </div>
       <div class="kpi-card">
         <div class="kpi-top">
-          <div><div class="kpi-num"><?= $totalVagas ?></div><div class="kpi-label">Total de Vagas</div></div>
+          <div><div class="kpi-num"><?= number_format($totalViews, 0, ',', '.') ?></div><div class="kpi-label">Visualizações</div></div>
           <div class="kpi-icon" style="background:#DBEAFE;font-size:1.4rem;"></div>
         </div>
       </div>
@@ -152,6 +174,7 @@ include __DIR__ . '/../includes/header.php';
                 <th>Vaga</th>
                 <th>Modalidade</th>
                 <th>Bolsa</th>
+                <th>Views</th>
                 <th>Candidaturas</th>
                 <th>Status</th>
                 <th>Publicada</th>
@@ -171,10 +194,14 @@ include __DIR__ . '/../includes/header.php';
                   </span>
                 </td>
                 <td style="font-weight:700;color:var(--accent);">R$ <?= number_format($v['bolsa'], 0, ',', '.') ?></td>
+                <td style="font-weight:600;color:var(--gray-700);"><?= (int)($v['views'] ?? 0) ?></td>
                 <td>
                   <span style="font-weight:700;"><?= $v['total_cand'] ?></span>
                   <?php if ($v['pendentes']): ?>
                     <span class="badge badge-yellow" style="margin-left:4px;"><?= $v['pendentes'] ?> novos</span>
+                  <?php endif; ?>
+                  <?php if ((int)$v['total_cand'] > 0): ?>
+                    <a href="/teste/empresa/exportar.php?vaga_id=<?= (int)$v['id'] ?>" style="display:block;font-size:.72rem;color:var(--primary);margin-top:4px;" title="Baixar CSV">Exportar CSV</a>
                   <?php endif; ?>
                 </td>
                 <td>
@@ -205,9 +232,14 @@ include __DIR__ . '/../includes/header.php';
     <div class="card mb-6" id="candidaturas">
       <div class="card-header">
         <h3>Candidaturas Recentes</h3>
-        <?php if ($pendentes): ?>
-          <span class="badge badge-yellow">⏳ <?= $pendentes ?> pendentes</span>
-        <?php endif; ?>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <?php if ($pendentes): ?>
+            <span class="badge badge-yellow"><?= $pendentes ?> pendentes</span>
+          <?php endif; ?>
+          <?php if ($totalCand > 0): ?>
+            <a href="/teste/empresa/exportar.php" class="btn btn-ghost btn-sm">Exportar tudo (CSV)</a>
+          <?php endif; ?>
+        </div>
       </div>
       <?php if (empty($recentes)): ?>
         <div class="card-body">
@@ -266,6 +298,40 @@ include __DIR__ . '/../includes/header.php';
           </table>
         </div>
       <?php endif; ?>
+    </div>
+
+    <div class="card mb-6" id="cnpj">
+      <div class="card-header">
+        <h3>Verificação de CNPJ</h3>
+        <?php if (!empty($empresa['cnpj'])): ?>
+          <span class="badge badge-green">Verificada</span>
+        <?php else: ?>
+          <span class="badge badge-yellow">Não verificada</span>
+        <?php endif; ?>
+      </div>
+      <div class="card-body">
+        <p class="text-muted text-sm" style="margin-bottom:14px;">
+          Informe o CNPJ da empresa. Os dados serão consultados na Receita Federal (via BrasilAPI) e o perfil será preenchido automaticamente.
+        </p>
+        <?php if ($cnpjErro): ?>
+          <div class="alert alert-error"><?= htmlspecialchars($cnpjErro) ?></div>
+        <?php endif; ?>
+        <?php if ($cnpjResultado): ?>
+          <div class="alert alert-success">
+            CNPJ verificado:
+            <strong><?= htmlspecialchars($cnpjResultado['razao_social']) ?></strong>
+            <?php if ($cnpjResultado['nome_fantasia']): ?> (<?= htmlspecialchars($cnpjResultado['nome_fantasia']) ?>)<?php endif; ?>
+            <?php if ($cnpjResultado['municipio']): ?> · <?= htmlspecialchars($cnpjResultado['municipio']) ?>/<?= htmlspecialchars($cnpjResultado['uf']) ?><?php endif; ?>
+          </div>
+        <?php endif; ?>
+        <form method="POST" style="display:flex;gap:12px;align-items:flex-end;">
+          <div class="form-group" style="flex:1;margin:0;">
+            <label class="form-label">CNPJ</label>
+            <input type="text" name="cnpj" class="form-control" placeholder="00.000.000/0000-00" value="<?= htmlspecialchars(formatarCNPJ($empresa['cnpj'] ?? '')) ?>">
+          </div>
+          <button type="submit" name="consultar_cnpj" value="1" class="btn btn-primary">Consultar e atualizar</button>
+        </form>
+      </div>
     </div>
 
     <div class="card" id="perfil">
