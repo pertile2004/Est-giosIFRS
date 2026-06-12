@@ -17,6 +17,15 @@ $vaga = $stmt->fetch();
 
 if (!$vaga) { header('Location: /teste/vagas.php'); exit; }
 
+// Contador de visualizacoes: nao conta a propria empresa nem bots/duplos da mesma sessao
+$jaVisualizou = $_SESSION['vagas_vistas'][$id] ?? false;
+$ehDonoVaga = isEmpresa() && (int)$vaga['empresa_id'] === (int)($_SESSION['perfil_id'] ?? 0);
+if (!$jaVisualizou && !$ehDonoVaga) {
+    $db->prepare("UPDATE vagas SET views = views + 1 WHERE id = ?")->execute([$id]);
+    $_SESSION['vagas_vistas'][$id] = true;
+    $vaga['views'] = ($vaga['views'] ?? 0) + 1;
+}
+
 $jaCandidatou = false;
 if (isLoggedIn() && isAluno() && $_SESSION['perfil_id']) {
     $stmtC = $db->prepare("SELECT id FROM candidaturas WHERE aluno_id = ? AND vaga_id = ?");

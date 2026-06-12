@@ -15,6 +15,18 @@ function isEmpresa() {
     return isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'empresa';
 }
 
+function isAdmin() {
+    return !empty($_SESSION['is_admin']);
+}
+
+function requireAdmin() {
+    requireLogin();
+    if (!isAdmin()) {
+        http_response_code(403);
+        die('Acesso restrito a administradores.');
+    }
+}
+
 function requireLogin($redirect = '/teste/login.php') {
     if (!isLoggedIn()) {
         header("Location: $redirect");
@@ -45,10 +57,12 @@ function login($email, $senha) {
     $user = $stmt->fetch();
 
     if ($user && password_verify($senha, $user['senha'])) {
+        if (isset($user['ativo']) && !$user['ativo']) return false;
         $_SESSION['usuario_id'] = $user['id'];
         $_SESSION['nome'] = $user['nome'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['tipo'] = $user['tipo'];
+        $_SESSION['is_admin'] = !empty($user['is_admin']);
 
         if ($user['tipo'] === 'aluno') {
             $stmt2 = $db->prepare("SELECT id FROM alunos WHERE usuario_id = ?");
@@ -66,6 +80,47 @@ function login($email, $senha) {
         return true;
     }
     return false;
+}
+
+/**
+ * Consulta dados publicos de um CNPJ na BrasilAPI.
+ * Retorna ['razao_social','nome_fantasia','municipio','uf','cnae','telefone','email']
+ * ou null em caso de erro.
+ */
+function consultarCNPJ($cnpj) {
+    $cnpjLimpo = preg_replace('/\D/', '', $cnpj);
+    if (strlen($cnpjLimpo) !== 14) return null;
+
+    $url = 'https://brasilapi.com.br/api/cnpj/v1/' . $cnpjLimpo;
+    $ctx = stream_context_create(['http' => [
+        'timeout' => 6,
+        'header'  => "Accept: application/json\r\nUser-Agent: InternSHIP-Conect\r\n",
+        'ignore_errors' => true,
+    ]]);
+    $resp = @file_get_contents($url, false, $ctx);
+    if ($resp === false) return null;
+
+    $data = json_decode($resp, true);
+    if (!is_array($data) || isset($data['type']) || empty($data['cnpj'])) return null;
+
+    return [
+        'razao_social'  => $data['razao_social']  ?? '',
+        'nome_fantasia' => $data['nome_fantasia'] ?? '',
+        'municipio'     => $data['municipio']     ?? '',
+        'uf'            => $data['uf']            ?? '',
+        'cnae'          => $data['cnae_fiscal_descricao'] ?? '',
+        'telefone'      => $data['ddd_telefone_1'] ?? '',
+        'email'         => $data['email'] ?? '',
+    ];
+}
+
+/**
+ * Formata um CNPJ no padrao 00.000.000/0000-00.
+ */
+function formatarCNPJ($cnpj) {
+    $c = preg_replace('/\D/', '', $cnpj);
+    if (strlen($c) !== 14) return $cnpj;
+    return substr($c,0,2).'.'.substr($c,2,3).'.'.substr($c,5,3).'/'.substr($c,8,4).'-'.substr($c,12,2);
 }
 
 function registrarAluno($nome, $email, $senha, $curso, $universidade, $semestre) {
