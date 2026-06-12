@@ -87,6 +87,19 @@ html[data-theme="dark"] .sidebar { background: var(--surface); border-color: var
 html[data-theme="dark"] .auth-right { background: var(--bg); }
 html[data-theme="dark"] .form-control { background: var(--bg-soft); color: var(--text); border-color: var(--border); }
 html[data-theme="dark"] .form-control::placeholder { color: var(--text-soft); }
+
+/* Sobrescreve o autofill do Chrome em dark mode (que aplica fundo lavanda forte) */
+html[data-theme="dark"] input:-webkit-autofill,
+html[data-theme="dark"] input:-webkit-autofill:hover,
+html[data-theme="dark"] input:-webkit-autofill:focus,
+html[data-theme="dark"] input:-webkit-autofill:active,
+html[data-theme="dark"] textarea:-webkit-autofill,
+html[data-theme="dark"] select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-soft) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+  caret-color: var(--text);
+  transition: background-color 5000s ease-in-out 0s;
+}
 html[data-theme="dark"] th { background: var(--bg-soft); color: var(--text-soft); border-bottom-color: var(--border); }
 html[data-theme="dark"] td { border-bottom-color: var(--border); color: var(--text); }
 html[data-theme="dark"] tr:hover td { background: var(--bg-soft); }
