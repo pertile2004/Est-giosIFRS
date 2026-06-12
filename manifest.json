@@ -1,0 +1,21 @@
+{
+  "name": "InternSHIP Conect",
+  "short_name": "InternSHIP",
+  "description": "Plataforma de estagios da regiao do IFRS, conectando estudantes a empresas da Serra Gaucha.",
+  "start_url": "/teste/",
+  "scope": "/teste/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F172A",
+  "theme_color": "#7C3AED",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/teste/assets/img/logo-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "business"]
+}

@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  php-lint:
+    name: PHP Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Verifica sintaxe de todos os arquivos PHP
+        run: |
+          set -e
+          # Procura todos os .php (exclui pastas de dependencia/build se houver)
+          ERROR_COUNT=0
+          while IFS= read -r -d '' f; do
+            if ! php -l "$f" > /dev/null 2>&1; then
+              echo "::error file=$f::Erro de sintaxe em $f"
+              php -l "$f" || true
+              ERROR_COUNT=$((ERROR_COUNT+1))
+            fi
+          done < <(find . -name "*.php" -not -path "./.git/*" -print0)
+
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            echo "Total de arquivos com erro: $ERROR_COUNT"
+            exit 1
+          fi
+          echo "Todos os arquivos PHP passaram no lint."
+
+  smoke-tests:
+    name: Smoke tests
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: estagios
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql, mbstring, fileinfo
+
+      - name: Cria banco a partir do setup.sql
+        env:
+          MYSQL_PWD: root
+        run: |
+          mysql -h 127.0.0.1 -uroot < setup.sql
+
+      - name: Roda os smoke tests
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASS: root
+          DB_NAME: estagios
+        run: php tests/run.php
