@@ -16,12 +16,20 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/teste/assets/css/style.css">
   <link rel="icon" type="image/svg+xml" href="/teste/assets/img/logo-icon.svg">
+  <link rel="manifest" href="/teste/manifest.json">
+  <meta name="theme-color" content="#7C3AED">
   <script>
     // Aplica tema antes do render para evitar flash
     (function() {
       var t = localStorage.getItem('theme');
       if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
     })();
+    // Registra service worker (PWA)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/teste/service-worker.js').catch(function(){});
+      });
+    }
   </script>
 </head>
 <body>
