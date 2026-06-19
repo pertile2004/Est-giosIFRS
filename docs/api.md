@@ -43,18 +43,26 @@ listagens/exibições e POST para mutações (cadastros, candidaturas, etc.).
 | Método | Rota | Descrição |
 |---|---|---|
 | GET | `/teste/dashboard/aluno.php` | Painel: KPIs, candidaturas, favoritos, perfil |
-| POST | `/teste/dashboard/aluno.php` | Atualiza perfil + upload de CV |
+| POST | `/teste/dashboard/aluno.php` | Atualiza perfil + upload de CV ou foto |
 | POST | `/teste/vaga.php?id=N` | Candidata-se (`candidatar`) ou salva favorito (`toggle_favorito`) |
 | GET | `/teste/perfil/aluno.php?id=N` | Visualiza próprio perfil |
 
-### Upload de currículo (`POST /teste/dashboard/aluno.php`)
+### Uploads do aluno (`POST /teste/dashboard/aluno.php`)
 
-`multipart/form-data` com campo `curriculo`. Validações:
+`multipart/form-data` com os campos opcionais `curriculo` e `foto`.
+
+Currículo:
 - Extensão `.pdf`
 - MIME `application/pdf`
 - Tamanho máximo 3 MB
 
-Substitui o currículo anterior (apaga o arquivo antigo do disco).
+Foto de perfil:
+- Extensão `.jpg`, `.jpeg`, `.png` ou `.webp`
+- MIME `image/*`
+- Tamanho máximo 2 MB
+
+Os dois substituem o arquivo anterior (apagam do disco) e podem ser
+removidos via `remover_curriculo` ou `remover_foto`.
 
 ## Empresa autenticada
 
@@ -64,16 +72,39 @@ Substitui o currículo anterior (apaga o arquivo antigo do disco).
 | POST | `/teste/dashboard/empresa.php` | `update_status`, `toggle_vaga` ou `consultar_cnpj` |
 | GET | `/teste/empresa/publicar.php` | Form de nova vaga |
 | POST | `/teste/empresa/publicar.php` | Cria vaga |
-| POST | `/teste/empresa/update.php` | Atualiza perfil da empresa |
+| GET | `/teste/empresa/publicar.php?id=N` | Form de edição de vaga já publicada |
+| POST | `/teste/empresa/publicar.php?id=N` | Atualiza vaga existente |
+| POST | `/teste/empresa/update.php` | Atualiza perfil da empresa + upload de logo |
 | GET | `/teste/empresa/exportar.php` | Baixa CSV de todas as candidaturas da empresa |
 | GET | `/teste/empresa/exportar.php?vaga_id=N` | CSV das candidaturas de uma vaga específica |
 | GET | `/teste/perfil/aluno.php?id=N` | Visualiza perfil de aluno que se candidatou |
+
+A edição via `?id=N` só é permitida para vagas da própria empresa logada
+(caso contrário redireciona para o painel).
 
 ### Resposta de `consultar_cnpj`
 
 Quando POST contém `consultar_cnpj=1` e `cnpj`, o servidor consulta a
 BrasilAPI e, se sucesso, atualiza `nome_empresa`, `cidade`, `estado` e
 `cnpj` no banco.
+
+### Upload de logo (`POST /teste/empresa/update.php`)
+
+`multipart/form-data` com o campo opcional `logo`. Mesmas validações da
+foto do aluno: `.jpg`/`.jpeg`/`.png`/`.webp`, MIME `image/*`, máx 2 MB.
+Aceita também `remover_logo=1` para apagar o arquivo do disco e zerar
+o campo no banco.
+
+## Chat aluno/empresa
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/teste/chat.php?candidatura_id=N` | Abre a conversa da candidatura |
+| POST | `/teste/chat.php?candidatura_id=N` | Envia nova mensagem (campo `enviar` + `conteudo`) |
+
+Só o aluno dono da candidatura ou a empresa dona da vaga acessam (HTTP
+403 caso contrário). Ao abrir, marca como `lida = 1` todas as mensagens
+recebidas do outro lado. Conteúdo tem limite de 2000 caracteres.
 
 ## Admin (requer `is_admin = 1`)
 

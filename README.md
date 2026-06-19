@@ -22,15 +22,20 @@ universitários a empresas locais.
 - Busca de vagas com filtros (área, modalidade, cidade IFRS, faixa de bolsa)
 - Candidatura com carta de apresentação opcional
 - Upload de currículo em PDF
+- Foto de perfil (opcional)
 - Vagas salvas em favoritos
+- Chat com a empresa após a candidatura
 - Painel com KPIs e histórico de candidaturas
 - Login social Google/GitHub (opcional, requer configuração)
 - Recuperação de senha por e-mail
 
 ### Para empresas
 - Publicação de vagas com requisitos, benefícios e modalidade
+- Edição de vagas já publicadas
+- Logo da empresa (opcional)
 - Verificação por CNPJ via BrasilAPI (Receita Federal)
 - Gestão inline de candidaturas (pendente/visualizado/aprovado/recusado)
+- Chat com cada candidato
 - Visualização do perfil público de cada candidato
 - Analytics de visualizações por vaga
 - Exportação de candidaturas em CSV
@@ -129,9 +134,11 @@ teste/
 │   └── aluno.php           # Perfil público do aluno (empresa visualiza)
 ├── tests/                  # Testes smoke
 │   └── run.php
-├── uploads/                # CVs (PDFs)
+├── uploads/                # Arquivos enviados pelos usuarios
 │   ├── .htaccess           # Bloqueia execucao de PHP
-│   └── curriculos/
+│   ├── curriculos/         # PDFs de CV dos alunos
+│   ├── fotos/              # Fotos de perfil dos alunos
+│   └── logos/              # Logos das empresas
 ├── .github/workflows/      # CI (lint PHP)
 ├── index.php               # Landing
 ├── login.php
@@ -141,6 +148,7 @@ teste/
 ├── reset-password.php
 ├── vagas.php               # Listagem com filtros
 ├── vaga.php                # Detalhe + candidatura
+├── chat.php                # Chat aluno/empresa por candidatura
 ├── privacidade.php
 ├── termos.php
 ├── manifest.json           # PWA manifest

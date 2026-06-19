@@ -5,16 +5,17 @@ Banco: `estagios` · Charset: `utf8mb4_unicode_ci` · Engine: `InnoDB`
 ## Diagrama de relacionamentos
 
 ```
-usuarios (1) ──┬── (1) alunos
-               ├── (1) empresas
-               └── (N) password_resets
-               └── (N) oauth_accounts
+usuarios     (1) ──┬── (1) alunos
+                   ├── (1) empresas
+                   ├── (N) password_resets
+                   └── (N) oauth_accounts
 
-empresas (1) ── (N) vagas
-vagas    (1) ── (N) candidaturas
-alunos   (1) ── (N) candidaturas
-alunos   (1) ── (N) vagas_favoritas
-vagas    (1) ── (N) vagas_favoritas
+empresas     (1) ── (N) vagas
+vagas        (1) ── (N) candidaturas
+alunos       (1) ── (N) candidaturas
+alunos       (1) ── (N) vagas_favoritas
+vagas        (1) ── (N) vagas_favoritas
+candidaturas (1) ── (N) mensagens
 ```
 
 ## Tabelas
@@ -46,7 +47,7 @@ Dados específicos do estudante. 1-para-1 com `usuarios`.
 | `cidade`, `estado` | VARCHAR/CHAR(2) | |
 | `sobre` | TEXT | Bio |
 | `linkedin`, `github` | VARCHAR(255) | URLs |
-| `foto` | VARCHAR(255) | URL de avatar |
+| `foto` | VARCHAR(255) | Caminho relativo (`uploads/fotos/foto_...jpg`) |
 | `curriculo_path` | VARCHAR(255) | Caminho relativo (`uploads/curriculos/cv_...pdf`) |
 
 ### `empresas`
@@ -62,7 +63,7 @@ Dados específicos da empresa. 1-para-1 com `usuarios`.
 | `site` | VARCHAR(255) | |
 | `cidade`, `estado` | VARCHAR/CHAR(2) | |
 | `setor` | VARCHAR(100) | |
-| `logo` | VARCHAR(255) | URL ou caminho |
+| `logo` | VARCHAR(255) | URL externa ou caminho relativo (`uploads/logos/logo_...jpg`) |
 
 ### `vagas`
 
@@ -134,3 +135,18 @@ estar vinculada a um usuário interno.
 | `criado_em` | TIMESTAMP | |
 
 Índice único `(aluno_id, vaga_id)` — sem favoritos duplicados.
+
+### `mensagens`
+Mensagens trocadas entre aluno e empresa dentro de uma candidatura.
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `id` | INT AI PK | |
+| `candidatura_id` | INT FK | → `candidaturas.id` ON DELETE CASCADE |
+| `remetente_tipo` | ENUM | `aluno`, `empresa` |
+| `conteudo` | TEXT | Texto da mensagem (máx 2000 caracteres) |
+| `lida` | TINYINT(1) | 1 = lida pelo outro lado |
+| `criado_em` | TIMESTAMP | |
+
+Índice secundário `idx_candidatura (candidatura_id, criado_em)` para
+listar a thread em ordem cronológica de forma rápida.
