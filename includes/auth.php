@@ -256,6 +256,78 @@ function salvarCurriculoAluno($alunoId, $arquivo) {
 }
 
 /**
+ * Helper interno que salva um arquivo de imagem.
+ * Retorna o caminho relativo ou null em caso de erro.
+ *
+ * Validacoes: extensao jpg/jpeg/png/webp, MIME image/*, tamanho max 2MB.
+ */
+function _salvarImagem($arquivo, $subdir, $prefixo, $idEntidade) {
+    if (!$arquivo || $arquivo['error'] !== UPLOAD_ERR_OK) return null;
+    if ($arquivo['size'] > 2 * 1024 * 1024) return null;
+
+    $ext = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
+    if ($ext === 'jpeg') $ext = 'jpg';
+    $extsValidas = ['jpg','png','webp'];
+    if (!in_array($ext, $extsValidas, true)) return null;
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = finfo_file($finfo, $arquivo['tmp_name']);
+    finfo_close($finfo);
+    if (!str_starts_with($mime, 'image/')) return null;
+
+    $destDir = __DIR__ . '/../uploads/' . $subdir;
+    if (!is_dir($destDir)) @mkdir($destDir, 0775, true);
+
+    $nome = $prefixo . '_' . $idEntidade . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
+    $destPath = $destDir . '/' . $nome;
+    if (!move_uploaded_file($arquivo['tmp_name'], $destPath)) return null;
+
+    return 'uploads/' . $subdir . '/' . $nome;
+}
+
+/**
+ * Salva a foto de perfil do aluno (jpg/png/webp, max 2MB).
+ * Apaga a foto antiga se existir.
+ */
+function salvarFotoAluno($alunoId, $arquivo) {
+    $db = getDB();
+    $novo = _salvarImagem($arquivo, 'fotos', 'foto', $alunoId);
+    if (!$novo) return null;
+
+    $antigo = $db->prepare("SELECT foto FROM alunos WHERE id = ?");
+    $antigo->execute([$alunoId]);
+    $caminhoAntigo = $antigo->fetchColumn();
+    if ($caminhoAntigo) {
+        $f = __DIR__ . '/../' . ltrim($caminhoAntigo, '/');
+        if (is_file($f)) @unlink($f);
+    }
+
+    $db->prepare("UPDATE alunos SET foto = ? WHERE id = ?")->execute([$novo, $alunoId]);
+    return $novo;
+}
+
+/**
+ * Salva o logo da empresa (jpg/png/webp, max 2MB).
+ * Apaga o logo antigo se existir.
+ */
+function salvarLogoEmpresa($empresaId, $arquivo) {
+    $db = getDB();
+    $novo = _salvarImagem($arquivo, 'logos', 'logo', $empresaId);
+    if (!$novo) return null;
+
+    $antigo = $db->prepare("SELECT logo FROM empresas WHERE id = ?");
+    $antigo->execute([$empresaId]);
+    $caminhoAntigo = $antigo->fetchColumn();
+    if ($caminhoAntigo && !preg_match('#^https?://#', $caminhoAntigo)) {
+        $f = __DIR__ . '/../' . ltrim($caminhoAntigo, '/');
+        if (is_file($f)) @unlink($f);
+    }
+
+    $db->prepare("UPDATE empresas SET logo = ? WHERE id = ?")->execute([$novo, $empresaId]);
+    return $novo;
+}
+
+/**
  * Alterna o status de favorito de uma vaga para um aluno.
  * Retorna true se a vaga ficou favoritada, false se foi removida dos favoritos.
  */
