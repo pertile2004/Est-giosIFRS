@@ -167,12 +167,7 @@ include __DIR__ . '/includes/header.php';
             </div>
             <div class="form-group">
               <label class="form-label">Estado</label>
-              <select name="estado" class="form-control">
-                <option value="">UF</option>
-                <?php foreach (['SP','RJ','MG','RS','PR','SC','BA','CE','PE','GO','DF','AM','PA','ES','MT','MS','PB','RN','AL','PI','SE','TO','MA','RO','RR','AP','AC'] as $uf): ?>
-                  <option value="<?= $uf ?>" <?= ($_POST['estado'] ?? '') === $uf ? 'selected' : '' ?>><?= $uf ?></option>
-                <?php endforeach; ?>
-              </select>
+              <input type="text" name="estado" class="form-control" value="RS" readonly style="background:var(--gray-100);cursor:not-allowed;">
             </div>
           </div>
           <div class="form-group">
@@ -184,13 +179,59 @@ include __DIR__ . '/includes/header.php';
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Senha</label>
-            <input type="password" name="senha" class="form-control" placeholder="Mín. 6 caracteres" required>
+            <input type="password" name="senha" id="senha" class="form-control" placeholder="Mín. 6 caracteres" required minlength="6">
+            <div class="form-hint" id="senha-hint" style="display:none;">Senha precisa ter pelo menos 6 caracteres.</div>
           </div>
           <div class="form-group">
             <label class="form-label">Confirmar senha</label>
-            <input type="password" name="confirma" class="form-control" placeholder="Repita a senha" required>
+            <input type="password" name="confirma" id="confirma" class="form-control" placeholder="Repita a senha" required>
+            <div class="form-hint" id="confirma-hint" style="display:none;"></div>
           </div>
         </div>
+
+        <script>
+        (function() {
+          var senha = document.getElementById('senha');
+          var confirma = document.getElementById('confirma');
+          var senhaHint = document.getElementById('senha-hint');
+          var confirmaHint = document.getElementById('confirma-hint');
+
+          function check() {
+            // Tamanho minimo
+            if (senha.value.length > 0 && senha.value.length < 6) {
+              senhaHint.style.display = 'block';
+              senhaHint.style.color = 'var(--danger)';
+              senha.style.borderColor = 'var(--danger)';
+            } else {
+              senhaHint.style.display = 'none';
+              senha.style.borderColor = '';
+            }
+
+            // Comparar senhas
+            if (confirma.value.length === 0) {
+              confirmaHint.style.display = 'none';
+              confirma.style.borderColor = '';
+              confirma.setCustomValidity('');
+              return;
+            }
+            if (senha.value === confirma.value) {
+              confirmaHint.style.display = 'block';
+              confirmaHint.textContent = '✓ As senhas coincidem';
+              confirmaHint.style.color = 'var(--accent)';
+              confirma.style.borderColor = 'var(--accent)';
+              confirma.setCustomValidity('');
+            } else {
+              confirmaHint.style.display = 'block';
+              confirmaHint.textContent = '✗ As senhas não coincidem';
+              confirmaHint.style.color = 'var(--danger)';
+              confirma.style.borderColor = 'var(--danger)';
+              confirma.setCustomValidity('As senhas não coincidem.');
+            }
+          }
+          senha.addEventListener('input', check);
+          confirma.addEventListener('input', check);
+        })();
+        </script>
 
         <label class="form-check" style="margin-bottom:20px;">
           <input type="checkbox" required>

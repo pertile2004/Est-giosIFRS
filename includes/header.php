@@ -14,7 +14,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/teste/assets/css/style.css">
+  <link rel="stylesheet" href="/teste/assets/css/style.css?v=<?= @filemtime(__DIR__ . '/../assets/css/style.css') ?>">
   <link rel="icon" type="image/svg+xml" href="/teste/assets/img/logo-icon.svg">
   <link rel="manifest" href="/teste/manifest.json">
   <meta name="theme-color" content="#7C3AED">
@@ -37,14 +37,11 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 <nav class="navbar">
   <div class="navbar-inner">
     <a href="/teste/" class="navbar-brand">
-      <img src="/teste/assets/img/logo.svg" alt="InternSHIP Connect" style="height:42px;width:auto;display:block;object-fit:contain;">
+      <img src="/teste/assets/img/logo.svg" alt="InternSHIP Connect" style="height:52px;width:auto;display:block;object-fit:contain;">
     </a>
 
     <div class="navbar-nav">
       <a href="/teste/vagas.php" class="<?= $currentPage === 'vagas' ? 'active' : '' ?>">Vagas</a>
-      <a href="/teste/vagas.php?modalidade=remoto">Remoto</a>
-      <a href="/teste/vagas.php?area=Tecnologia">Tecnologia</a>
-      <a href="/teste/vagas.php?area=Design">Design</a>
     </div>
 
     <div class="navbar-actions">
@@ -61,6 +58,12 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
           <a href="/teste/dashboard/empresa.php" class="btn btn-ghost btn-sm">Painel Empresa</a>
           <a href="/teste/empresa/publicar.php" class="btn btn-primary btn-sm">+ Publicar Vaga</a>
         <?php endif; ?>
+        <a href="<?= isAluno() ? '/teste/dashboard/aluno.php#perfil' : '/teste/dashboard/empresa.php#perfil' ?>"
+           class="btn btn-ghost btn-sm"
+           title="<?= htmlspecialchars($_SESSION['nome'] ?? 'Meu perfil') ?>"
+           style="padding:6px 10px;display:inline-flex;align-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </a>
         <a href="/teste/logout.php" class="btn btn-ghost btn-sm">Sair</a>
       <?php else: ?>
         <a href="/teste/login.php" class="btn btn-ghost btn-sm">Entrar</a>
