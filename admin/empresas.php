@@ -34,7 +34,7 @@ include __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="container" style="max-width:1200px;padding:32px 24px;">
-  <a href="/teste/admin/" style="color:var(--gray-600);font-size:.88rem;">← Voltar ao painel</a>
+  <a href="/teste/admin/" class="btn btn-ghost btn-sm">← Voltar ao painel</a>
   <h1 style="margin-top:12px;">Empresas cadastradas</h1>
   <p class="text-muted">Total: <?= count($empresas) ?></p>
 

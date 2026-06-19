@@ -59,7 +59,7 @@ include __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="container" style="max-width:820px;padding:40px 24px 80px;">
-  <a href="javascript:history.back()" style="color:var(--gray-600);font-size:.88rem;">← Voltar</a>
+  <a href="javascript:history.back()" class="btn btn-ghost btn-sm">← Voltar</a>
 
   <div class="card" style="margin-top:16px;padding:32px;">
     <div style="display:flex;gap:20px;align-items:center;margin-bottom:24px;">
