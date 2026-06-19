@@ -33,6 +33,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             $erroMsg = 'Não foi possível enviar o currículo. Verifique se é um PDF válido com até 3 MB.';
         }
     }
+
+    if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+        $fotoSalva = salvarFotoAluno($alunoId, $_FILES['foto']);
+        if ($fotoSalva) {
+            $successMsg .= ' Foto atualizada.';
+        } else {
+            $erroMsg = 'Não foi possível enviar a foto. Use JPG, PNG ou WEBP com até 2 MB.';
+        }
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_curriculo'])) {
@@ -44,6 +53,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_curriculo']))
         if (is_file($arq)) @unlink($arq);
         $db->prepare("UPDATE alunos SET curriculo_path = NULL WHERE id = ?")->execute([$alunoId]);
         $successMsg = 'Currículo removido.';
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_foto'])) {
+    $stmt = $db->prepare("SELECT foto FROM alunos WHERE id = ?");
+    $stmt->execute([$alunoId]);
+    $caminho = $stmt->fetchColumn();
+    if ($caminho) {
+        $arq = __DIR__ . '/../' . ltrim($caminho, '/');
+        if (is_file($arq)) @unlink($arq);
+        $db->prepare("UPDATE alunos SET foto = NULL WHERE id = ?")->execute([$alunoId]);
+        $successMsg = 'Foto removida.';
     }
 }
 
@@ -212,7 +233,14 @@ include __DIR__ . '/../includes/header.php';
                 </td>
                 <td><?= statusBadge($c['status']) ?></td>
                 <td style="color:var(--gray-400);font-size:.8rem;"><?= date('d/m/Y', strtotime($c['criado_em'])) ?></td>
-                <td><a href="/teste/vaga.php?id=<?= $c['vaga_id'] ?>" class="btn btn-ghost btn-sm">Ver</a></td>
+                <td>
+                  <div style="display:flex;gap:6px;">
+                    <a href="/teste/vaga.php?id=<?= $c['vaga_id'] ?>" class="btn btn-ghost btn-sm">Ver</a>
+                    <a href="/teste/chat.php?candidatura_id=<?= (int)$c['id'] ?>" class="btn btn-primary btn-sm" title="Conversar com a empresa">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </a>
+                  </div>
+                </td>
               </tr>
               <?php endforeach; ?>
             </tbody>
@@ -337,7 +365,27 @@ include __DIR__ . '/../includes/header.php';
           </div>
 
           <div class="form-group">
-            <label class="form-label">Currículo (PDF, máx. 3MB)</label>
+            <label class="form-label">Foto de perfil <span style="font-weight:400;color:var(--gray-500);">(opcional · JPG/PNG/WEBP, máx. 2MB)</span></label>
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+              <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.4rem;flex-shrink:0;">
+                <?php if (!empty($aluno['foto'])): ?>
+                  <img src="/teste/<?= htmlspecialchars($aluno['foto']) ?>" alt="Foto" style="width:100%;height:100%;object-fit:cover;">
+                <?php else: ?>
+                  <?= mb_strtoupper(mb_substr($aluno['nome'], 0, 1)) ?>
+                <?php endif; ?>
+              </div>
+              <div style="flex:1;">
+                <input type="file" name="foto" class="form-control" accept="image/jpeg,image/png,image/webp">
+                <?php if (!empty($aluno['foto'])): ?>
+                  <button type="submit" name="remover_foto" value="1" class="btn btn-ghost btn-sm" style="color:var(--danger);margin-top:6px;" onclick="return confirm('Remover a foto atual?')">Remover foto</button>
+                <?php endif; ?>
+              </div>
+            </div>
+            <div class="form-hint">A foto é mostrada no seu perfil, nas suas candidaturas e no chat com as empresas. Não é obrigatória.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Currículo <span style="font-weight:400;color:var(--gray-500);">(opcional · PDF, máx. 3MB)</span></label>
             <?php if (!empty($aluno['curriculo_path'])): ?>
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
                 <a href="/teste/<?= htmlspecialchars($aluno['curriculo_path']) ?>" target="_blank" class="btn btn-ghost btn-sm">Baixar currículo atual</a>
