@@ -27,10 +27,15 @@ if (!$jaVisualizou && !$ehDonoVaga) {
 }
 
 $jaCandidatou = false;
+$minhaCandidaturaId = 0;
 if (isLoggedIn() && isAluno() && $_SESSION['perfil_id']) {
     $stmtC = $db->prepare("SELECT id FROM candidaturas WHERE aluno_id = ? AND vaga_id = ?");
     $stmtC->execute([$_SESSION['perfil_id'], $id]);
-    $jaCandidatou = (bool)$stmtC->fetch();
+    $rowC = $stmtC->fetch();
+    if ($rowC) {
+        $jaCandidatou = true;
+        $minhaCandidaturaId = (int)$rowC['id'];
+    }
 }
 
 $mensagem = '';
@@ -90,7 +95,7 @@ include __DIR__ . '/includes/header.php';
 <div class="job-detail-hero">
   <div class="container">
     <div style="padding:16px 0 24px;">
-      <a href="/teste/vagas.php" style="color:var(--gray-600);font-size:.88rem;">← Voltar às vagas</a>
+      <a href="/teste/vagas.php" class="btn btn-ghost btn-sm">← Voltar às vagas</a>
     </div>
   </div>
 </div>
@@ -100,7 +105,7 @@ include __DIR__ . '/includes/header.php';
     <div class="grid-2" style="align-items:start;margin-top:-24px;">
 
       <div style="grid-column:1/2;">
-        <div style="background:#fff;border-radius:var(--radius-lg);padding:36px;border:1px solid var(--gray-200);box-shadow:var(--shadow);">
+        <div style="background:var(--surface);color:var(--text);border-radius:var(--radius-lg);padding:36px;border:1px solid var(--border);box-shadow:var(--shadow);">
 
           <?php if ($mensagem): ?>
             <div class="alert alert-success"><?= htmlspecialchars($mensagem) ?></div>
@@ -237,6 +242,10 @@ include __DIR__ . '/includes/header.php';
             <div class="alert alert-success">
               Você já se candidatou!
             </div>
+            <a href="/teste/chat.php?candidatura_id=<?= (int)$minhaCandidaturaId ?>" class="btn btn-primary btn-block" style="margin-bottom:8px;display:inline-flex;align-items:center;justify-content:center;gap:8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Conversar com a empresa
+            </a>
             <a href="/teste/dashboard/aluno.php" class="btn btn-ghost btn-block">Ver minhas candidaturas</a>
           <?php elseif (isLoggedIn() && isAluno()): ?>
             <form method="POST">

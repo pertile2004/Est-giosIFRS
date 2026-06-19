@@ -109,6 +109,17 @@ CREATE TABLE IF NOT EXISTS vagas_favoritas (
     FOREIGN KEY (vaga_id) REFERENCES vagas(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS mensagens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    candidatura_id INT NOT NULL,
+    remetente_tipo ENUM('aluno','empresa') NOT NULL,
+    conteudo TEXT NOT NULL,
+    lida TINYINT(1) DEFAULT 0,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (candidatura_id) REFERENCES candidaturas(id) ON DELETE CASCADE,
+    INDEX idx_candidatura (candidatura_id, criado_em)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Senha de todos os usuarios seed: senha123
 -- Para promover qualquer usuario a admin depois:
 --   UPDATE usuarios SET is_admin = 1 WHERE email = 'rh@techsolutions.com';

@@ -37,9 +37,11 @@ $recentes = $recentes->fetchAll();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     $candId = (int)$_POST['candidatura_id'];
     $status = $_POST['status'];
-    $db->prepare("UPDATE candidaturas SET status=? WHERE id=? AND vaga_id IN (SELECT id FROM vagas WHERE empresa_id=?)")
-       ->execute([$status, $candId, $empresaId]);
-    header('Location: /teste/dashboard/empresa.php#candidaturas');
+    if (in_array($status, ['pendente','visualizado','aprovado','recusado'], true)) {
+        $db->prepare("UPDATE candidaturas SET status=? WHERE id=? AND vaga_id IN (SELECT id FROM vagas WHERE empresa_id=?)")
+           ->execute([$status, $candId, $empresaId]);
+    }
+    header('Location: /teste/dashboard/empresa.php?saved=1');
     exit;
 }
 
@@ -206,17 +208,23 @@ include __DIR__ . '/../includes/header.php';
                 </td>
                 <td>
                   <span class="badge <?= $v['ativa'] ? 'badge-green' : 'badge-gray' ?>">
-                    <?= $v['ativa'] ? 'Ativa' : '⏸️ Pausada' ?>
+                    <?= $v['ativa'] ? 'Ativa' : 'Pausada' ?>
                   </span>
                 </td>
                 <td style="font-size:.8rem;color:var(--gray-400);"><?= date('d/m/Y', strtotime($v['criado_em'])) ?></td>
                 <td>
                   <div style="display:flex;gap:6px;">
-                    <a href="/teste/vaga.php?id=<?= $v['id'] ?>" class="btn btn-ghost btn-sm"></a>
+                    <a href="/teste/empresa/publicar.php?id=<?= $v['id'] ?>" class="btn btn-ghost btn-sm" title="Editar vaga">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </a>
                     <form method="POST" style="display:inline;">
                       <input type="hidden" name="vaga_id" value="<?= $v['id'] ?>">
                       <button type="submit" name="toggle_vaga" class="btn btn-ghost btn-sm" title="<?= $v['ativa'] ? 'Pausar' : 'Ativar' ?>">
-                        <?= $v['ativa'] ? '⏸️' : '▶️' ?>
+                        <?php if ($v['ativa']): ?>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+                        <?php else: ?>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                        <?php endif; ?>
                       </button>
                     </form>
                   </div>
@@ -281,16 +289,22 @@ include __DIR__ . '/../includes/header.php';
                 <td><?= statusBadge($c['status']) ?></td>
                 <td style="font-size:.8rem;color:var(--gray-400);"><?= date('d/m/Y', strtotime($c['criado_em'])) ?></td>
                 <td>
-                  <form method="POST" style="display:flex;gap:6px;">
-                    <input type="hidden" name="candidatura_id" value="<?= $c['id'] ?>">
-                    <select name="status" class="form-control" style="padding:5px 8px;font-size:.8rem;min-width:110px;">
-                      <option value="pendente" <?= $c['status'] === 'pendente' ? 'selected' : '' ?>>⏳ Pendente</option>
-                      <option value="visualizado" <?= $c['status'] === 'visualizado' ? 'selected' : '' ?>>Visualizado</option>
-                      <option value="aprovado" <?= $c['status'] === 'aprovado' ? 'selected' : '' ?>>Aprovado</option>
-                      <option value="recusado" <?= $c['status'] === 'recusado' ? 'selected' : '' ?>>Recusado</option>
-                    </select>
-                    <button type="submit" name="update_status" class="btn btn-primary btn-sm">OK</button>
-                  </form>
+                  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                    <form method="POST" action="/teste/dashboard/empresa.php" style="display:flex;gap:6px;">
+                      <input type="hidden" name="candidatura_id" value="<?= (int)$c['id'] ?>">
+                      <input type="hidden" name="update_status" value="1">
+                      <select name="status" class="form-control" style="padding:5px 8px;font-size:.8rem;min-width:110px;">
+                        <option value="pendente"    <?= $c['status'] === 'pendente'    ? 'selected' : '' ?>>Pendente</option>
+                        <option value="visualizado" <?= $c['status'] === 'visualizado' ? 'selected' : '' ?>>Visualizado</option>
+                        <option value="aprovado"    <?= $c['status'] === 'aprovado'    ? 'selected' : '' ?>>Aprovado</option>
+                        <option value="recusado"    <?= $c['status'] === 'recusado'    ? 'selected' : '' ?>>Recusado</option>
+                      </select>
+                      <button type="submit" class="btn btn-primary btn-sm">OK</button>
+                    </form>
+                    <a href="/teste/chat.php?candidatura_id=<?= (int)$c['id'] ?>" class="btn btn-ghost btn-sm" title="Conversar com o candidato">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </a>
+                  </div>
                 </td>
               </tr>
               <?php endforeach; ?>
@@ -337,7 +351,27 @@ include __DIR__ . '/../includes/header.php';
     <div class="card" id="perfil">
       <div class="card-header"><h3>Perfil da Empresa</h3></div>
       <div class="card-body">
-        <form method="POST" action="/teste/empresa/update.php">
+        <form method="POST" action="/teste/empresa/update.php" enctype="multipart/form-data">
+          <div class="form-group">
+            <label class="form-label">Logo da empresa <span style="font-weight:400;color:var(--gray-500);">(opcional · JPG/PNG/WEBP, máx. 2MB)</span></label>
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+              <div style="width:64px;height:64px;border-radius:var(--radius-sm);overflow:hidden;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.4rem;flex-shrink:0;">
+                <?php if (!empty($empresa['logo'])): ?>
+                  <img src="<?= preg_match('#^https?://#', $empresa['logo']) ? htmlspecialchars($empresa['logo']) : '/teste/' . htmlspecialchars($empresa['logo']) ?>" alt="Logo" style="width:100%;height:100%;object-fit:cover;">
+                <?php else: ?>
+                  <?= mb_strtoupper(mb_substr($empresa['nome_empresa'], 0, 2)) ?>
+                <?php endif; ?>
+              </div>
+              <div style="flex:1;">
+                <input type="file" name="logo" class="form-control" accept="image/jpeg,image/png,image/webp">
+                <?php if (!empty($empresa['logo']) && !preg_match('#^https?://#', $empresa['logo'])): ?>
+                  <button type="submit" name="remover_logo" value="1" class="btn btn-ghost btn-sm" style="color:var(--danger);margin-top:6px;" onclick="return confirm('Remover o logo atual?')">Remover logo</button>
+                <?php endif; ?>
+              </div>
+            </div>
+            <div class="form-hint">A logo aparece nas suas vagas, nas candidaturas dos alunos e no chat.</div>
+          </div>
+
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Nome da Empresa</label>
