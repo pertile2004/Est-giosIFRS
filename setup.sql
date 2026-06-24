@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nome VARCHAR(150) NOT NULL,
     email VARCHAR(200) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
-    tipo ENUM('aluno','empresa') NOT NULL,
+    tipo ENUM('aluno','empresa','coordenacao') NOT NULL,
     is_admin TINYINT(1) DEFAULT 0,
     ativo TINYINT(1) DEFAULT 1,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -59,6 +59,8 @@ CREATE TABLE IF NOT EXISTS vagas (
     bolsa DECIMAL(10,2),
     carga_horaria INT,
     ativa TINYINT(1) DEFAULT 1,
+    restrita TINYINT(1) DEFAULT 0,
+    motivo_restricao VARCHAR(255) DEFAULT NULL,
     destaque TINYINT(1) DEFAULT 0,
     views INT DEFAULT 0,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -120,14 +122,26 @@ CREATE TABLE IF NOT EXISTS mensagens (
     INDEX idx_candidatura (candidatura_id, criado_em)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Senha de todos os usuarios seed: senha123
+-- Mensagens enviadas pela página pública de Contato (lidas pela Coordenação)
+CREATE TABLE IF NOT EXISTS mensagens_contato (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    email VARCHAR(200) NOT NULL,
+    assunto VARCHAR(200) NOT NULL,
+    mensagem TEXT NOT NULL,
+    status ENUM('nova','lida','resolvida') NOT NULL DEFAULT 'nova',
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Senha de todos os usuarios seed: senha123 (coordenacao: coord123)
 -- Para promover qualquer usuario a admin depois:
 --   UPDATE usuarios SET is_admin = 1 WHERE email = 'rh@techsolutions.com';
-INSERT INTO usuarios (nome, email, senha, tipo) VALUES
-('Tech Solutions Ltda', 'rh@techsolutions.com', '$2y$10$fdi6dZAy.8whVjkaSPy36udFh43DjplufxfAqobwMmjcuaD95cmm.', 'empresa'),
-('InovaCorp', 'rh@inovacorp.com.br', '$2y$10$mGniEL9zZ09CsujHtxAa9.B3n39cH.esZ3R5g9029AwxrgnLdDhWy', 'empresa'),
-('StartupBR', 'vagas@startupbr.io', '$2y$10$X07bJkKSO23PuZGPa78sxuiBe1IKKypDNCfehzDWnb1IP64WETmfG', 'empresa'),
-('João Silva', 'joao@email.com', '$2y$10$Eb9GBnNG3n.7keF6ZBiymODhF2UKshz7bn1ciJVSXYRwNu4PgVdNe', 'aluno');
+INSERT INTO usuarios (nome, email, senha, tipo, is_admin) VALUES
+('Tech Solutions Ltda', 'rh@techsolutions.com', '$2y$10$fdi6dZAy.8whVjkaSPy36udFh43DjplufxfAqobwMmjcuaD95cmm.', 'empresa', 0),
+('InovaCorp', 'rh@inovacorp.com.br', '$2y$10$mGniEL9zZ09CsujHtxAa9.B3n39cH.esZ3R5g9029AwxrgnLdDhWy', 'empresa', 0),
+('StartupBR', 'vagas@startupbr.io', '$2y$10$X07bJkKSO23PuZGPa78sxuiBe1IKKypDNCfehzDWnb1IP64WETmfG', 'empresa', 0),
+('João Silva', 'joao@email.com', '$2y$10$Eb9GBnNG3n.7keF6ZBiymODhF2UKshz7bn1ciJVSXYRwNu4PgVdNe', 'aluno', 0),
+('Coordenação InternSHIP', 'coordenacao@internshipconnect.com.br', '$2y$10$97dAx2d12lNzl7PjyFJuguWN914Evwr6sHvF7GBkYHy6b.uijBn02', 'coordenacao', 1);
 
 INSERT INTO empresas (usuario_id, nome_empresa, descricao, cidade, estado, setor) VALUES
 (1, 'Tech Solutions', 'Empresa líder em soluções de software para a Serra Gaúcha.', 'Bento Gonçalves', 'RS', 'Tecnologia'),

@@ -19,7 +19,7 @@ if ($bolsa_min > $bolsa_max) $bolsa_min = 0;
 $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 12;
 
-$where = ['v.ativa = 1'];
+$where = ['v.ativa = 1', 'v.restrita = 0'];
 $params = [];
 
 if ($q) {
@@ -51,7 +51,7 @@ $stmt = $db->prepare("
 $stmt->execute($params);
 $vagas = $stmt->fetchAll();
 
-$areas = $db->query("SELECT DISTINCT area FROM vagas WHERE ativa=1 AND area IS NOT NULL ORDER BY area")->fetchAll(PDO::FETCH_COLUMN);
+$areas = $db->query("SELECT DISTINCT area FROM vagas WHERE ativa=1 AND restrita=0 AND area IS NOT NULL ORDER BY area")->fetchAll(PDO::FETCH_COLUMN);
 
 $cidadesDestaque = ['Bento Gonçalves', 'Carlos Barbosa', 'Garibaldi'];
 $cidadesIFRS = [
@@ -148,12 +148,12 @@ include __DIR__ . '/includes/header.php';
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:flex-end;">
-        <button type="submit" class="btn btn-primary" style="height:47px;display:inline-flex;align-items:center;gap:6px;">
+        <button type="submit" class="btn btn-primary" style="height:56px;display:inline-flex;align-items:center;gap:6px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
           Filtrar
         </button>
         <?php if ($q || $area || $modalidade || $cidade || $bolsa_min || $bolsa_max < $bolsaSliderMax): ?>
-          <a href="/teste/vagas.php" class="btn btn-ghost" style="height:47px;display:inline-flex;align-items:center;gap:6px;" title="Limpar filtros">
+          <a href="/teste/vagas.php" class="btn btn-ghost" style="height:56px;display:inline-flex;align-items:center;gap:6px;" title="Limpar filtros">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Limpar
           </a>

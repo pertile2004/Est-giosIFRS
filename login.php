@@ -2,8 +2,13 @@
 $pageTitle = 'InternSHIP Conect — Entrar';
 require_once __DIR__ . '/includes/auth.php';
 
+function destinoPosLogin() {
+    if (isCoordenacao() || isAdmin()) return '/teste/admin/';
+    return isAluno() ? '/teste/dashboard/aluno.php' : '/teste/dashboard/empresa.php';
+}
+
 if (isLoggedIn()) {
-    header('Location: ' . (isAluno() ? '/teste/dashboard/aluno.php' : '/teste/dashboard/empresa.php'));
+    header('Location: ' . destinoPosLogin());
     exit;
 }
 
@@ -12,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $senha = $_POST['senha'] ?? '';
     if (login($email, $senha)) {
-        header('Location: ' . (isAluno() ? '/teste/dashboard/aluno.php' : '/teste/dashboard/empresa.php'));
+        header('Location: ' . destinoPosLogin());
         exit;
     } else {
         $erro = 'E-mail ou senha incorretos.';

@@ -49,21 +49,28 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
         <span id="theme-icon">&#9790;</span>
       </button>
       <?php if (isLoggedIn()): ?>
-        <?php if (isAdmin()): ?>
-          <a href="/teste/admin/" class="btn btn-ghost btn-sm" style="color:var(--primary);">Admin</a>
+        <?php if (isCoordenacao() || isAdmin()): ?>
+          <a href="/teste/admin/" class="btn btn-ghost btn-sm" style="color:var(--primary);display:inline-flex;align-items:center;gap:6px;">
+            Coordenação
+            <?php $msgsNovas = contarMensagensNovas(); if ($msgsNovas): ?>
+              <span class="badge badge-red"><?= $msgsNovas ?></span>
+            <?php endif; ?>
+          </a>
         <?php endif; ?>
         <?php if (isAluno()): ?>
           <a href="/teste/dashboard/aluno.php" class="btn btn-ghost btn-sm">Meu Painel</a>
-        <?php else: ?>
+        <?php elseif (isEmpresa()): ?>
           <a href="/teste/dashboard/empresa.php" class="btn btn-ghost btn-sm">Painel Empresa</a>
           <a href="/teste/empresa/publicar.php" class="btn btn-primary btn-sm">+ Publicar Vaga</a>
         <?php endif; ?>
-        <a href="<?= isAluno() ? '/teste/dashboard/aluno.php#perfil' : '/teste/dashboard/empresa.php#perfil' ?>"
-           class="btn btn-ghost btn-sm"
-           title="<?= htmlspecialchars($_SESSION['nome'] ?? 'Meu perfil') ?>"
-           style="padding:6px 10px;display:inline-flex;align-items:center;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </a>
+        <?php if (isAluno() || isEmpresa()): ?>
+          <a href="<?= isAluno() ? '/teste/dashboard/aluno.php#perfil' : '/teste/dashboard/empresa.php#perfil' ?>"
+             class="btn btn-ghost btn-sm"
+             title="<?= htmlspecialchars($_SESSION['nome'] ?? 'Meu perfil') ?>"
+             style="padding:8px 12px;display:inline-flex;align-items:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </a>
+        <?php endif; ?>
         <a href="/teste/logout.php" class="btn btn-ghost btn-sm">Sair</a>
       <?php else: ?>
         <a href="/teste/login.php" class="btn btn-ghost btn-sm">Entrar</a>

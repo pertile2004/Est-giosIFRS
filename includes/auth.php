@@ -19,6 +19,27 @@ function isAdmin() {
     return !empty($_SESSION['is_admin']);
 }
 
+function isCoordenacao() {
+    return isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'coordenacao';
+}
+
+function requireCoordenacao() {
+    requireLogin();
+    if (!isCoordenacao() && !isAdmin()) {
+        http_response_code(403);
+        die('Acesso restrito à coordenação.');
+    }
+}
+
+/** Quantidade de mensagens de contato ainda não lidas (status 'nova'). */
+function contarMensagensNovas() {
+    try {
+        return (int) getDB()->query("SELECT COUNT(*) FROM mensagens_contato WHERE status='nova'")->fetchColumn();
+    } catch (Exception $e) {
+        return 0;
+    }
+}
+
 function requireAdmin() {
     requireLogin();
     if (!isAdmin()) {
@@ -69,13 +90,16 @@ function login($email, $senha) {
             $stmt2->execute([$user['id']]);
             $aluno = $stmt2->fetch();
             $_SESSION['perfil_id'] = $aluno['id'] ?? null;
-        } else {
+        } elseif ($user['tipo'] === 'empresa') {
             $stmt2 = $db->prepare("SELECT id, nome_empresa, logo FROM empresas WHERE usuario_id = ?");
             $stmt2->execute([$user['id']]);
             $empresa = $stmt2->fetch();
             $_SESSION['perfil_id'] = $empresa['id'] ?? null;
             $_SESSION['nome_empresa'] = $empresa['nome_empresa'] ?? '';
             $_SESSION['logo'] = $empresa['logo'] ?? '';
+        } else {
+            // coordenação: sem perfil associado
+            $_SESSION['perfil_id'] = null;
         }
         return true;
     }

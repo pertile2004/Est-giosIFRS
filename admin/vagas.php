@@ -13,6 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare("UPDATE vagas SET ativa=0 WHERE id=?")->execute([$vagaId]);
         } elseif ($acao === 'ativar') {
             $db->prepare("UPDATE vagas SET ativa=1 WHERE id=?")->execute([$vagaId]);
+        } elseif ($acao === 'restringir') {
+            $db->prepare("UPDATE vagas SET restrita=1, motivo_restricao=? WHERE id=?")
+               ->execute([mb_substr(trim($_POST['motivo'] ?? ''), 0, 255), $vagaId]);
+        } elseif ($acao === 'liberar') {
+            $db->prepare("UPDATE vagas SET restrita=0, motivo_restricao=NULL WHERE id=?")->execute([$vagaId]);
         } elseif ($acao === 'excluir') {
             $db->prepare("DELETE FROM vagas WHERE id=?")->execute([$vagaId]);
         }
@@ -27,7 +32,7 @@ if ($filtro === 'ativas')   $where = 'WHERE v.ativa = 1';
 if ($filtro === 'pausadas') $where = 'WHERE v.ativa = 0';
 
 $vagas = $db->query("
-    SELECT v.id, v.titulo, v.area, v.cidade, v.estado, v.modalidade, v.bolsa, v.ativa, v.views, v.criado_em,
+    SELECT v.id, v.titulo, v.area, v.cidade, v.estado, v.modalidade, v.bolsa, v.ativa, v.restrita, v.motivo_restricao, v.views, v.criado_em,
            e.nome_empresa,
            (SELECT COUNT(*) FROM candidaturas WHERE vaga_id = v.id) AS total_cand
       FROM vagas v
@@ -78,21 +83,30 @@ include __DIR__ . '/../includes/header.php';
             <td><?= (int)($v['views'] ?? 0) ?></td>
             <td><?= (int)$v['total_cand'] ?></td>
             <td>
-              <?php if ($v['ativa']): ?>
+              <?php if ($v['restrita']): ?>
+                <span class="badge badge-red" title="<?= htmlspecialchars($v['motivo_restricao'] ?? '') ?>">Restrita</span>
+              <?php elseif ($v['ativa']): ?>
                 <span class="badge badge-green">Ativa</span>
               <?php else: ?>
                 <span class="badge badge-gray">Pausada</span>
               <?php endif; ?>
             </td>
             <td>
-              <form method="POST" style="display:flex;gap:6px;">
+              <form method="POST" style="display:flex;gap:6px;flex-wrap:wrap;">
                 <input type="hidden" name="vaga_id" value="<?= (int)$v['id'] ?>">
+                <?php if ($v['restrita']): ?>
+                  <button name="acao" value="liberar" class="btn btn-ghost btn-sm" style="color:var(--accent);">Liberar</button>
+                <?php else: ?>
+                  <button name="acao" value="restringir" class="btn btn-ghost btn-sm" style="color:var(--danger);"
+                          onclick="this.form.motivo.value = prompt('Motivo da restrição:') || ''; return this.form.motivo.value !== '';">Restringir</button>
+                <?php endif; ?>
                 <?php if ($v['ativa']): ?>
                   <button name="acao" value="pausar" class="btn btn-ghost btn-sm">Pausar</button>
                 <?php else: ?>
                   <button name="acao" value="ativar" class="btn btn-ghost btn-sm">Ativar</button>
                 <?php endif; ?>
                 <button name="acao" value="excluir" class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="return confirm('Excluir esta vaga definitivamente?')">Excluir</button>
+                <input type="hidden" name="motivo" value="">
               </form>
             </td>
           </tr>

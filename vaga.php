@@ -7,20 +7,43 @@ if (!$id) { header('Location: /teste/vagas.php'); exit; }
 
 $db = getDB();
 $stmt = $db->prepare("
-    SELECT v.*, e.nome_empresa, e.logo, e.descricao AS empresa_desc, e.site, e.setor, e.cidade AS emp_cidade, e.estado AS emp_estado
+    SELECT v.*, e.nome_empresa, e.logo, e.descricao AS empresa_desc, e.site, e.setor, e.cidade AS emp_cidade, e.estado AS emp_estado, u.email AS empresa_email
     FROM vagas v
     JOIN empresas e ON v.empresa_id = e.id
-    WHERE v.id = ? AND v.ativa = 1
+    JOIN usuarios u ON e.usuario_id = u.id
+    WHERE v.id = ?
 ");
 $stmt->execute([$id]);
 $vaga = $stmt->fetch();
 
 if (!$vaga) { header('Location: /teste/vagas.php'); exit; }
 
-// Contador de visualizacoes: nao conta a propria empresa nem bots/duplos da mesma sessao
-$jaVisualizou = $_SESSION['vagas_vistas'][$id] ?? false;
+$ehCoordenacao = isCoordenacao() || isAdmin();
 $ehDonoVaga = isEmpresa() && (int)$vaga['empresa_id'] === (int)($_SESSION['perfil_id'] ?? 0);
-if (!$jaVisualizou && !$ehDonoVaga) {
+
+// Vagas pausadas ou restritas só ficam visíveis para a coordenação ou para a própria empresa
+if ((!$vaga['ativa'] || !empty($vaga['restrita'])) && !$ehCoordenacao && !$ehDonoVaga) {
+    header('Location: /teste/vagas.php');
+    exit;
+}
+
+// Moderação da coordenação: restringir / liberar a vaga
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['moderar_vaga'])) {
+    if (!$ehCoordenacao) { http_response_code(403); die('Acesso restrito à coordenação.'); }
+    $acaoMod = $_POST['acao_mod'] ?? '';
+    if ($acaoMod === 'restringir') {
+        $motivo = mb_substr(trim($_POST['motivo'] ?? ''), 0, 255);
+        $db->prepare("UPDATE vagas SET restrita=1, motivo_restricao=? WHERE id=?")->execute([$motivo, $id]);
+    } elseif ($acaoMod === 'liberar') {
+        $db->prepare("UPDATE vagas SET restrita=0, motivo_restricao=NULL WHERE id=?")->execute([$id]);
+    }
+    header('Location: /teste/vaga.php?id=' . $id);
+    exit;
+}
+
+// Contador de visualizacoes: nao conta a propria empresa, a coordenacao, nem duplos da mesma sessao
+$jaVisualizou = $_SESSION['vagas_vistas'][$id] ?? false;
+if (!$jaVisualizou && !$ehDonoVaga && !$ehCoordenacao) {
     $db->prepare("UPDATE vagas SET views = views + 1 WHERE id = ?")->execute([$id]);
     $_SESSION['vagas_vistas'][$id] = true;
     $vaga['views'] = ($vaga['views'] ?? 0) + 1;
@@ -78,7 +101,7 @@ if (isLoggedIn() && isAluno()) {
 $similares = $db->prepare("
     SELECT v.id, v.titulo, v.bolsa, v.modalidade, e.nome_empresa
     FROM vagas v JOIN empresas e ON v.empresa_id = e.id
-    WHERE v.ativa=1 AND v.id != ? AND v.area = ?
+    WHERE v.ativa=1 AND v.restrita=0 AND v.id != ? AND v.area = ?
     LIMIT 3
 ");
 $similares->execute([$id, $vaga['area']]);
@@ -112,6 +135,16 @@ include __DIR__ . '/includes/header.php';
           <?php endif; ?>
           <?php if ($erroApply): ?>
             <div class="alert alert-error"><?= htmlspecialchars($erroApply) ?></div>
+          <?php endif; ?>
+
+          <?php if (!empty($vaga['restrita'])): ?>
+            <div class="alert alert-error">
+              <strong>Vaga restrita pela coordenação.</strong>
+              <?php if (!empty($vaga['motivo_restricao'])): ?><br>Motivo: <?= htmlspecialchars($vaga['motivo_restricao']) ?><?php endif; ?>
+              <br><span style="font-size:.85rem;">Ela não aparece nas buscas públicas enquanto estiver restrita.</span>
+            </div>
+          <?php elseif (empty($vaga['ativa'])): ?>
+            <div class="alert alert-info"><strong>Vaga pausada pela empresa.</strong> Não aparece nas buscas públicas.</div>
           <?php endif; ?>
 
           <div class="job-detail-header">
@@ -238,7 +271,35 @@ include __DIR__ . '/includes/header.php';
 
           <div class="divider"></div>
 
-          <?php if ($jaCandidatou): ?>
+          <?php if ($ehCoordenacao): ?>
+            <div style="text-align:center;margin-bottom:14px;font-weight:700;color:var(--primary);">Painel da Coordenação</div>
+            <?php if (!empty($vaga['restrita'])): ?>
+              <div class="alert alert-error" style="margin-bottom:12px;">
+                Vaga <strong>restrita</strong>.
+                <?php if (!empty($vaga['motivo_restricao'])): ?><br>Motivo: <?= htmlspecialchars($vaga['motivo_restricao']) ?><?php endif; ?>
+              </div>
+              <form method="POST" onsubmit="return confirm('Liberar esta vaga? Ela voltará a aparecer nas buscas.');">
+                <input type="hidden" name="moderar_vaga" value="1">
+                <input type="hidden" name="acao_mod" value="liberar">
+                <button type="submit" class="btn btn-primary btn-block btn-lg">Liberar vaga</button>
+              </form>
+            <?php else: ?>
+              <form method="POST" onsubmit="return confirm('Restringir esta vaga? Ela deixará de aparecer nas buscas públicas.');">
+                <input type="hidden" name="moderar_vaga" value="1">
+                <input type="hidden" name="acao_mod" value="restringir">
+                <div class="form-group">
+                  <label class="form-label">Motivo da restrição</label>
+                  <textarea name="motivo" class="form-control" rows="3" placeholder="Ex.: conteúdo fora das políticas, vaga falsa, dados inadequados..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-block btn-lg" style="background:var(--danger);color:#fff;">Restringir vaga</button>
+              </form>
+            <?php endif; ?>
+            <a href="mailto:<?= htmlspecialchars($vaga['empresa_email']) ?>?subject=<?= rawurlencode('[InternSHIP Coordenação] Vaga: ' . $vaga['titulo']) ?>"
+               class="btn btn-ghost btn-block" style="margin-top:10px;display:inline-flex;align-items:center;justify-content:center;gap:8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Falar com a empresa
+            </a>
+          <?php elseif ($jaCandidatou): ?>
             <div class="alert alert-success">
               Você já se candidatou!
             </div>
@@ -289,7 +350,7 @@ include __DIR__ . '/includes/header.php';
                   <?= $ehFavorita ? 'Salva ★' : 'Salvar' ?>
                 </button>
               </form>
-            <?php else: ?>
+            <?php elseif (!isLoggedIn()): ?>
               <a href="/teste/login.php" class="btn btn-ghost btn-sm" style="flex:1;text-align:center;">Salvar</a>
             <?php endif; ?>
           </div>

@@ -14,7 +14,7 @@ $vagas = $db->query("
   SELECT v.*, e.nome_empresa, e.logo, e.setor
   FROM vagas v
   JOIN empresas e ON v.empresa_id = e.id
-  WHERE v.ativa = 1
+  WHERE v.ativa = 1 AND v.restrita = 0
   ORDER BY v.destaque DESC, v.criado_em DESC
   LIMIT 6
 ")->fetchAll();
@@ -39,31 +39,43 @@ function modalidadeBadge($m) {
       <p>Conectamos estudantes do IFRS às empresas mais inovadoras da região. Encontre o estágio que vai transformar sua carreira.</p>
 
       <div class="hero-actions">
-        <a href="/teste/vagas.php" class="btn btn-primary btn-lg">
-          Explorar Vagas
-        </a>
-        <?php if (isLoggedIn()): ?>
-          <?php if (isAluno()): ?>
+        <?php if (isEmpresa()): ?>
+          <a href="/teste/empresa/publicar.php" class="btn btn-primary btn-lg">
+            + Publicar Vaga
+          </a>
+          <a href="/teste/dashboard/empresa.php" class="btn btn-white btn-lg">
+            Painel da Empresa
+          </a>
+        <?php elseif (isCoordenacao() || isAdmin()): ?>
+          <a href="/teste/admin/" class="btn btn-primary btn-lg">
+            Painel da Coordenação
+          </a>
+          <a href="/teste/vagas.php" class="btn btn-white btn-lg">
+            Ver Vagas
+          </a>
+        <?php else: ?>
+          <a href="/teste/vagas.php" class="btn btn-primary btn-lg">
+            Explorar Vagas
+          </a>
+          <?php if (isLoggedIn() && isAluno()): ?>
             <a href="/teste/dashboard/aluno.php" class="btn btn-white btn-lg">
               Gerenciar Perfil
             </a>
           <?php else: ?>
-            <a href="/teste/dashboard/empresa.php" class="btn btn-white btn-lg">
-              Gerenciar Perfil
+            <a href="/teste/register.php" class="btn btn-white btn-lg">
+              Criar Perfil Grátis
             </a>
           <?php endif; ?>
-        <?php else: ?>
-          <a href="/teste/register.php" class="btn btn-white btn-lg">
-            Criar Perfil Grátis
-          </a>
         <?php endif; ?>
       </div>
 
+      <?php if (!(isLoggedIn() && !isAluno())): ?>
       <div class="hero-search">
         <span style="color:rgba(255,255,255,.5);font-size:1.1rem;"></span>
         <input type="text" id="hero-search" placeholder="Buscar por cargo, área ou empresa..." />
         <button onclick="window.location.href='/teste/vagas.php?q='+document.getElementById('hero-search').value" class="btn btn-primary btn-sm">Buscar</button>
       </div>
+      <?php endif; ?>
     </div>
 
     <div class="hero-visual animate-in-delay">

@@ -18,7 +18,7 @@
       <h4>Sobre</h4>
       <a href="/teste/termos.php">Termos de uso</a>
       <a href="/teste/privacidade.php">Privacidade</a>
-      <a href="#">Contato</a>
+      <a href="/teste/contato.php">Contato</a>
     </div>
   </div>
   <div class="footer-bottom">

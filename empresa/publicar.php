@@ -33,6 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $modalidade = $_POST['modalidade'] ?? 'presencial';
     $bolsa = (float)str_replace(',', '.', str_replace('.', '', $_POST['bolsa'] ?? '0'));
     $carga = (int)($_POST['carga_horaria'] ?? 30);
+    if ($carga < 1)  $carga = 30;
+    if ($carga > 44) $carga = 44;
 
     if (!$titulo || !$descricao || !$area || !$cidade || !$estado) {
         $erro = 'Preencha todos os campos obrigatórios.';
@@ -147,12 +149,14 @@ include __DIR__ . '/../includes/header.php';
           </div>
           <div class="form-group">
             <label class="form-label">Carga horária semanal</label>
-            <select name="carga_horaria" class="form-control">
-              <?php $cAtual = (int)$val('carga_horaria', 30); ?>
-              <option value="20" <?= $cAtual === 20 ? 'selected' : '' ?>>20h por semana</option>
-              <option value="25" <?= $cAtual === 25 ? 'selected' : '' ?>>25h por semana</option>
-              <option value="30" <?= $cAtual === 30 ? 'selected' : '' ?>>30h por semana</option>
-            </select>
+            <?php $cAtual = (int)$val('carga_horaria', 30); ?>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input type="number" name="carga_horaria" class="form-control"
+                     min="1" max="44" step="1" value="<?= $cAtual ?>" placeholder="Ex.: 20"
+                     style="max-width:120px;" required>
+              <span style="color:var(--gray-500);font-size:.95rem;white-space:nowrap;">horas por semana</span>
+            </div>
+            <div class="form-hint">Informe livremente as horas semanais (1 a 44).</div>
           </div>
         </div>
       </div>

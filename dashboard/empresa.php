@@ -27,12 +27,24 @@ $recentes = $db->prepare("
     JOIN vagas v ON c.vaga_id = v.id
     JOIN alunos al ON c.aluno_id = al.id
     JOIN usuarios u ON al.usuario_id = u.id
-    WHERE v.empresa_id = ?
+    WHERE v.empresa_id = ? AND c.status <> 'aprovado'
     ORDER BY c.criado_em DESC
     LIMIT 8
 ");
 $recentes->execute([$empresaId]);
 $recentes = $recentes->fetchAll();
+
+$aprovados = $db->prepare("
+    SELECT c.*, v.titulo AS vaga_titulo, u.nome AS aluno_nome, al.id AS aluno_id, al.curso, al.universidade, al.curriculo_path
+    FROM candidaturas c
+    JOIN vagas v ON c.vaga_id = v.id
+    JOIN alunos al ON c.aluno_id = al.id
+    JOIN usuarios u ON al.usuario_id = u.id
+    WHERE v.empresa_id = ? AND c.status = 'aprovado'
+    ORDER BY c.criado_em DESC
+");
+$aprovados->execute([$empresaId]);
+$aprovados = $aprovados->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     $candId = (int)$_POST['candidatura_id'];
@@ -207,9 +219,16 @@ include __DIR__ . '/../includes/header.php';
                   <?php endif; ?>
                 </td>
                 <td>
-                  <span class="badge <?= $v['ativa'] ? 'badge-green' : 'badge-gray' ?>">
-                    <?= $v['ativa'] ? 'Ativa' : 'Pausada' ?>
-                  </span>
+                  <?php if (!empty($v['restrita'])): ?>
+                    <span class="badge badge-red" title="<?= htmlspecialchars($v['motivo_restricao'] ?? '') ?>">Restrita</span>
+                    <?php if (!empty($v['motivo_restricao'])): ?>
+                      <div style="font-size:.7rem;color:var(--danger);margin-top:3px;max-width:160px;"><?= htmlspecialchars($v['motivo_restricao']) ?></div>
+                    <?php endif; ?>
+                  <?php else: ?>
+                    <span class="badge <?= $v['ativa'] ? 'badge-green' : 'badge-gray' ?>">
+                      <?= $v['ativa'] ? 'Ativa' : 'Pausada' ?>
+                    </span>
+                  <?php endif; ?>
                 </td>
                 <td style="font-size:.8rem;color:var(--gray-400);"><?= date('d/m/Y', strtotime($v['criado_em'])) ?></td>
                 <td>
@@ -313,6 +332,61 @@ include __DIR__ . '/../includes/header.php';
         </div>
       <?php endif; ?>
     </div>
+
+    <?php if (!empty($aprovados)): ?>
+    <div class="card mb-6" id="aprovados">
+      <div class="card-header">
+        <h3>Candidatos Aprovados</h3>
+        <span class="badge badge-green"><?= count($aprovados) ?> aprovado<?= count($aprovados) > 1 ? 's' : '' ?></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Candidato</th>
+              <th>Vaga</th>
+              <th>Formação</th>
+              <th>Aprovado em</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($aprovados as $c): ?>
+            <tr>
+              <td>
+                <a href="/teste/perfil/aluno.php?id=<?= (int)$c['aluno_id'] ?>" class="td-title" style="color:var(--primary);text-decoration:none;">
+                  <?= htmlspecialchars($c['aluno_nome']) ?>
+                </a>
+                <?php if (!empty($c['curriculo_path'])): ?>
+                  <a href="/teste/<?= htmlspecialchars($c['curriculo_path']) ?>" target="_blank" rel="noopener" style="font-size:.75rem;color:var(--gray-500);margin-left:6px;">[CV]</a>
+                <?php endif; ?>
+              </td>
+              <td style="font-size:.88rem;"><?= htmlspecialchars($c['vaga_titulo']) ?></td>
+              <td style="font-size:.82rem;color:var(--gray-500);">
+                <?= htmlspecialchars($c['curso'] ?: '—') ?>
+                <?php if ($c['universidade']): ?><br><span><?= htmlspecialchars($c['universidade']) ?></span><?php endif; ?>
+              </td>
+              <td style="font-size:.8rem;color:var(--gray-400);"><?= date('d/m/Y', strtotime($c['criado_em'])) ?></td>
+              <td>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                  <a href="/teste/chat.php?candidatura_id=<?= (int)$c['id'] ?>" class="btn btn-ghost btn-sm" title="Conversar com o candidato">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </a>
+                  <form method="POST" action="/teste/dashboard/empresa.php" style="display:inline;" onsubmit="return confirm('Remover a aprovação deste candidato?');">
+                    <input type="hidden" name="candidatura_id" value="<?= (int)$c['id'] ?>">
+                    <input type="hidden" name="update_status" value="1">
+                    <input type="hidden" name="status" value="visualizado">
+                    <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger);" title="Remover aprovação (volta para as candidaturas)">Desfazer</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <?php endif; ?>
 
     <div class="card mb-6" id="cnpj">
       <div class="card-header">
