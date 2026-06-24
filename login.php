@@ -74,17 +74,17 @@ include __DIR__ . '/includes/header.php';
         <div class="alert alert-error"><?= htmlspecialchars($erro) ?></div>
       <?php endif; ?>
 
-      <form method="POST" action="">
+      <form method="POST" action="" autocomplete="off">
         <div class="form-group">
           <label class="form-label">E-mail</label>
-          <input type="email" name="email" class="form-control" placeholder="seu@email.com" required autofocus value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+          <input type="email" name="email" class="form-control" placeholder="seu@email.com" required autofocus autocomplete="off" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
         </div>
         <div class="form-group">
           <label class="form-label" style="display:flex;justify-content:space-between;">
             Senha
             <a href="/teste/forgot-password.php" style="font-weight:400;font-size:.82rem;color:var(--primary);">Esqueceu a senha?</a>
           </label>
-          <input type="password" name="senha" class="form-control" placeholder="••••••••" required>
+          <input type="password" name="senha" class="form-control" placeholder="••••••••" required autocomplete="new-password">
         </div>
         <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:8px;">
           Entrar →

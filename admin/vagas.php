@@ -44,7 +44,7 @@ $vagas = $db->query("
 include __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="container" style="max-width:1200px;padding:32px 24px;">
+<div class="container" style="max-width:1400px;padding:32px 24px;">
   <a href="/teste/admin/" class="btn btn-ghost btn-sm">← Voltar ao painel</a>
   <h1 style="margin-top:12px;">Vagas cadastradas</h1>
 
@@ -54,7 +54,7 @@ include __DIR__ . '/../includes/header.php';
     <a href="?filtro=pausadas" class="btn btn-<?= $filtro === 'pausadas' ? 'primary' : 'ghost' ?> btn-sm">Pausadas</a>
   </div>
 
-  <div class="table-wrap">
+  <div class="table-wrap compact">
     <table>
       <thead>
         <tr>
@@ -97,16 +97,16 @@ include __DIR__ . '/../includes/header.php';
                 <?php if ($v['restrita']): ?>
                   <button name="acao" value="liberar" class="btn btn-ghost btn-sm" style="color:var(--accent);">Liberar</button>
                 <?php else: ?>
-                  <button name="acao" value="restringir" class="btn btn-ghost btn-sm" style="color:var(--danger);"
-                          onclick="this.form.motivo.value = prompt('Motivo da restrição:') || ''; return this.form.motivo.value !== '';">Restringir</button>
+                  <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger);"
+                          onclick="abrirModalRestringir(<?= (int)$v['id'] ?>, '<?= htmlspecialchars(addslashes($v['titulo']), ENT_QUOTES) ?>')">Restringir</button>
                 <?php endif; ?>
                 <?php if ($v['ativa']): ?>
                   <button name="acao" value="pausar" class="btn btn-ghost btn-sm">Pausar</button>
                 <?php else: ?>
                   <button name="acao" value="ativar" class="btn btn-ghost btn-sm">Ativar</button>
                 <?php endif; ?>
-                <button name="acao" value="excluir" class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="return confirm('Excluir esta vaga definitivamente?')">Excluir</button>
-                <input type="hidden" name="motivo" value="">
+                <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger);"
+                        onclick="abrirModalExcluir(<?= (int)$v['id'] ?>, '<?= htmlspecialchars(addslashes($v['titulo']), ENT_QUOTES) ?>')">Excluir</button>
               </form>
             </td>
           </tr>
@@ -115,5 +115,93 @@ include __DIR__ . '/../includes/header.php';
     </table>
   </div>
 </div>
+
+<!-- Modal: Restringir -->
+<div class="modal-overlay" id="modal-restringir" onclick="if(event.target===this)fecharModal('modal-restringir')">
+  <div class="modal-card">
+    <h3 class="modal-title">Restringir vaga</h3>
+    <p class="modal-sub">A vaga <strong id="modal-restr-titulo"></strong> ficará indisponível para candidaturas.</p>
+    <form method="POST" id="form-restringir">
+      <input type="hidden" name="vaga_id" id="modal-restr-vaga-id">
+      <input type="hidden" name="acao" value="restringir">
+      <label class="form-label">Motivo da restrição *</label>
+      <textarea name="motivo" class="form-control" rows="4" required
+                placeholder="Ex.: vaga fora das políticas, dados falsos, salário incompatível..."
+                maxlength="255"></textarea>
+      <div class="form-hint">Máx. 255 caracteres. Será exibido para a empresa.</div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="fecharModal('modal-restringir')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);">Restringir</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Excluir -->
+<div class="modal-overlay" id="modal-excluir" onclick="if(event.target===this)fecharModal('modal-excluir')">
+  <div class="modal-card">
+    <h3 class="modal-title">Excluir vaga</h3>
+    <p class="modal-sub">A vaga <strong id="modal-excl-titulo"></strong> será removida em definitivo, junto com todas as candidaturas.</p>
+    <p class="modal-sub" style="color:var(--danger);">Esta ação não pode ser desfeita.</p>
+    <form method="POST">
+      <input type="hidden" name="vaga_id" id="modal-excl-vaga-id">
+      <input type="hidden" name="acao" value="excluir">
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="fecharModal('modal-excluir')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);">Excluir definitivamente</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.modal-overlay{
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(0,0,0,.6); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; padding:24px;
+}
+.modal-overlay.open{ display:flex; }
+.modal-card{
+  background:var(--surface); color:var(--text);
+  border:1px solid var(--border);
+  border-radius:16px; padding:28px;
+  width:100%; max-width:480px;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+  animation:modalIn .18s ease-out;
+}
+@keyframes modalIn{ from{ transform:translateY(12px); opacity:0 } to{ transform:none; opacity:1 } }
+.modal-title{ margin:0 0 8px; font-size:1.25rem; }
+.modal-sub{ color:var(--gray-600); font-size:.92rem; margin:0 0 16px; }
+.modal-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:20px; }
+</style>
+
+<script>
+function abrirModal(id){
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function fecharModal(id){
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow='';
+}
+function abrirModalRestringir(vagaId, titulo){
+  document.getElementById('modal-restr-vaga-id').value = vagaId;
+  document.getElementById('modal-restr-titulo').textContent = titulo;
+  document.querySelector('#form-restringir textarea').value = '';
+  abrirModal('modal-restringir');
+  setTimeout(()=>document.querySelector('#form-restringir textarea').focus(), 100);
+}
+function abrirModalExcluir(vagaId, titulo){
+  document.getElementById('modal-excl-vaga-id').value = vagaId;
+  document.getElementById('modal-excl-titulo').textContent = titulo;
+  abrirModal('modal-excluir');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    fecharModal('modal-restringir');
+    fecharModal('modal-excluir');
+  }
+});
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -133,14 +133,17 @@ CREATE TABLE IF NOT EXISTS mensagens_contato (
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Senha de todos os usuarios seed: senha123 (coordenacao: coord123)
+-- Senha de todos os usuarios seed (empresas + alunos): 123456
+-- Senha da coordenacao: coord123
 -- Para promover qualquer usuario a admin depois:
 --   UPDATE usuarios SET is_admin = 1 WHERE email = 'rh@techsolutions.com';
 INSERT INTO usuarios (nome, email, senha, tipo, is_admin) VALUES
-('Tech Solutions Ltda', 'rh@techsolutions.com', '$2y$10$fdi6dZAy.8whVjkaSPy36udFh43DjplufxfAqobwMmjcuaD95cmm.', 'empresa', 0),
-('InovaCorp', 'rh@inovacorp.com.br', '$2y$10$mGniEL9zZ09CsujHtxAa9.B3n39cH.esZ3R5g9029AwxrgnLdDhWy', 'empresa', 0),
-('StartupBR', 'vagas@startupbr.io', '$2y$10$X07bJkKSO23PuZGPa78sxuiBe1IKKypDNCfehzDWnb1IP64WETmfG', 'empresa', 0),
-('João Silva', 'joao@email.com', '$2y$10$Eb9GBnNG3n.7keF6ZBiymODhF2UKshz7bn1ciJVSXYRwNu4PgVdNe', 'aluno', 0),
+('Tech Solutions Ltda', 'rh@techsolutions.com', '$2y$10$hh09wHWPNNQn0Eg0q1k7q.2vshE7aLPCtDKOTMQb7CIaNgMpJQzO2', 'empresa', 0),
+('InovaCorp', 'rh@inovacorp.com.br', '$2y$10$hh09wHWPNNQn0Eg0q1k7q.2vshE7aLPCtDKOTMQb7CIaNgMpJQzO2', 'empresa', 0),
+('StartupBR', 'vagas@startupbr.io', '$2y$10$hh09wHWPNNQn0Eg0q1k7q.2vshE7aLPCtDKOTMQb7CIaNgMpJQzO2', 'empresa', 0),
+('João Pedro Pertile', 'jp20042009@gmail.com', '$2y$10$hh09wHWPNNQn0Eg0q1k7q.2vshE7aLPCtDKOTMQb7CIaNgMpJQzO2', 'aluno', 0),
+('Derick Visintiner Sonda', 'derick.v.sonda@gmail.com', '$2y$10$hh09wHWPNNQn0Eg0q1k7q.2vshE7aLPCtDKOTMQb7CIaNgMpJQzO2', 'aluno', 0),
+('Luiza Demartini da Costa', 'demartinidacostaluiza@gmail.com', '$2y$10$hh09wHWPNNQn0Eg0q1k7q.2vshE7aLPCtDKOTMQb7CIaNgMpJQzO2', 'aluno', 0),
 ('Coordenação InternSHIP', 'coordenacao@internshipconnect.com.br', '$2y$10$97dAx2d12lNzl7PjyFJuguWN914Evwr6sHvF7GBkYHy6b.uijBn02', 'coordenacao', 1);
 
 INSERT INTO empresas (usuario_id, nome_empresa, descricao, cidade, estado, setor) VALUES
@@ -149,12 +152,42 @@ INSERT INTO empresas (usuario_id, nome_empresa, descricao, cidade, estado, setor
 (3, 'StartupBR', 'Aceleradora de startups com foco em fintech e edtech.', 'Porto Alegre', 'RS', 'Fintech');
 
 INSERT INTO alunos (usuario_id, curso, universidade, semestre, cidade, estado) VALUES
-(4, 'Ciência da Computação', 'IFRS', 6, 'Bento Gonçalves', 'RS');
+(4, 'Ciência da Computação', 'IFRS - Campus Bento Gonçalves', 6, 'Bento Gonçalves', 'RS'),
+(5, 'Sistemas de Informação', 'IFRS - Campus Caxias do Sul', 4, 'Caxias do Sul', 'RS'),
+(6, 'Análise e Desenvolvimento de Sistemas', 'IFRS - Campus Farroupilha', 5, 'Farroupilha', 'RS');
 
+-- Duas vagas por empresa (foco em Bento Gonçalves e Carlos Barbosa)
 INSERT INTO vagas (empresa_id, titulo, descricao, requisitos, beneficios, area, cidade, estado, modalidade, bolsa, carga_horaria, destaque) VALUES
-(1, 'Estágio em Desenvolvimento Web', 'Você irá trabalhar no desenvolvimento de aplicações web modernas usando React e Node.js. Aprenderá boas práticas de desenvolvimento, metodologias ágeis e trabalhará em um time multidisciplinar.', 'Cursando TI, Sistemas ou áreas relacionadas. Conhecimento básico em HTML, CSS e JavaScript. Proativo e com vontade de aprender.', 'Bolsa R$ 1.500, Vale-refeição R$ 35/dia, Vale-transporte, Plano de saúde', 'Desenvolvimento Web', 'Bento Gonçalves', 'RS', 'hibrido', 1500.00, 30, 1),
-(1, 'Estágio em Data Science', 'Trabalhe com análise de dados e criação de modelos preditivos usando Python e SQL. Você terá acesso a grandes volumes de dados reais e aprenderá com nosso time de cientistas de dados sêniores.', 'Cursando Estatística, Matemática, Ciência da Computação. Python básico. Interesse em dados e machine learning.', 'Bolsa R$ 1.800, Vale-refeição, Vale-transporte, Auxílio home-office', 'Dados', 'Bento Gonçalves', 'RS', 'remoto', 1800.00, 20, 1),
-(2, 'Estágio em UX/UI Design', 'Crie experiências digitais incríveis! Você vai participar de todo o processo de design, desde a pesquisa com usuários até a entrega das interfaces para o time de desenvolvimento.', 'Cursando Design, Publicidade ou áreas correlatas. Conhecimento em Figma. Portfolio apresentando projetos pessoais.', 'Bolsa R$ 1.200, Vale-refeição, Vale-transporte, Licenças de software', 'Design', 'Caxias do Sul', 'RS', 'presencial', 1200.00, 30, 0),
-(2, 'Estágio em Machine Learning', 'Ajude a construir modelos de IA de ponta! Trabalhe com nossos engenheiros de ML em projetos que impactam milhões de usuários.', 'Cursando Engenharia, Computação ou Matemática. Python e bibliotecas de ML (sklearn, pandas). Inglês intermediário.', 'Bolsa R$ 2.000, Vale-refeição R$ 40/dia, Vale-transporte, Stock options', 'Inteligência Artificial', 'Carlos Barbosa', 'RS', 'hibrido', 2000.00, 30, 1),
-(3, 'Estágio em Marketing Digital', 'Aprenda na prática sobre estratégias de growth, SEO, redes sociais e performance. Você terá autonomia para criar e executar campanhas reais.', 'Cursando Marketing, Publicidade ou áreas relacionadas. Criativo e analítico. Conhecimento básico em Google Ads e Meta Ads.', 'Bolsa R$ 1.000, Vale-refeição, Vale-transporte', 'Marketing', 'Garibaldi', 'RS', 'hibrido', 1000.00, 20, 0),
-(3, 'Estágio em Produto (Product Management)', 'Aprenda a construir produtos digitais do zero. Você vai trabalhar na definição do roadmap, priorização de features e comunicação com stakeholders.', 'Cursando Administração, Engenharia ou Ciência da Computação. Pensamento analítico. Interesse em produtos digitais.', 'Bolsa R$ 1.600, Vale-refeição, Vale-transporte, Mentoria com PMs sêniores', 'Produto', 'Porto Alegre', 'RS', 'remoto', 1600.00, 30, 0);
+-- Tech Solutions
+(1, 'Estágio em Desenvolvimento Web',
+ 'Trabalhe no desenvolvimento de aplicações web modernas usando PHP, React e Node.js. Você vai participar do ciclo completo: análise de requisitos, implementação, testes e deploy. Nossa equipe atua com metodologias ágeis (Scrum) e você terá mentoria constante de devs sêniores.',
+ 'Cursando Ciência da Computação, Sistemas de Informação ou ADS. Conhecimento básico em HTML, CSS e JavaScript. Vontade de aprender back-end (PHP ou Node). Boa comunicação e trabalho em equipe.',
+ 'Bolsa R$ 1.500, Vale-refeição R$ 35/dia, Vale-transporte, Plano de saúde, Horário flexível',
+ 'Desenvolvimento Web', 'Bento Gonçalves', 'RS', 'hibrido', 1500.00, 30, 1),
+(1, 'Estágio em Desenvolvimento Mobile',
+ 'Participe do desenvolvimento de aplicativos mobile híbridos com React Native. Você vai trabalhar em apps reais em produção, integrando com APIs REST, resolvendo bugs e implementando novas features. Terá contato direto com nossa equipe de UX e produto.',
+ 'Cursando Ciência da Computação, Sistemas de Informação ou ADS. Conhecimento em JavaScript. Já ter mexido com React ou React Native é diferencial. Disposição para aprender.',
+ 'Bolsa R$ 1.600, Vale-refeição R$ 35/dia, Vale-transporte, Plano de saúde, Dispositivo de testes fornecido',
+ 'Desenvolvimento Mobile', 'Bento Gonçalves', 'RS', 'hibrido', 1600.00, 30, 0),
+-- InovaCorp
+(2, 'Estágio em Data Science e IA',
+ 'Ajude a construir modelos de machine learning que impactam decisões reais. Você vai trabalhar com Python, Pandas, scikit-learn e frameworks de deep learning. Nossos projetos vão desde análise preditiva até processamento de linguagem natural.',
+ 'Cursando Engenharia, Ciência da Computação ou Estatística. Conhecimento em Python. Interesse em estatística e machine learning. Inglês para leitura técnica.',
+ 'Bolsa R$ 1.800, Vale-refeição R$ 40/dia, Vale-transporte, Plano de saúde, Auxílio home-office',
+ 'Data Science', 'Carlos Barbosa', 'RS', 'hibrido', 1800.00, 30, 1),
+(2, 'Estágio em Engenharia de Dados',
+ 'Construa pipelines de dados robustos que alimentam nossos modelos de IA. Você vai trabalhar com Airflow, PostgreSQL, BigQuery e ferramentas de streaming (Kafka). É a oportunidade perfeita pra quem quer entrar no mundo de big data.',
+ 'Cursando Ciência da Computação, Engenharia ou áreas correlatas. SQL sólido. Python para scripts de ETL. Interesse em arquitetura de dados e cloud (AWS ou GCP).',
+ 'Bolsa R$ 1.700, Vale-refeição R$ 40/dia, Vale-transporte, Plano de saúde, Certificações pagas (AWS/GCP)',
+ 'Data Science', 'Carlos Barbosa', 'RS', 'hibrido', 1700.00, 30, 0),
+-- StartupBR
+(3, 'Estágio em Marketing Digital',
+ 'Aprenda na prática growth marketing, SEO, mídia paga e análise de métricas. Você vai criar e executar campanhas reais em Google Ads, Meta Ads e LinkedIn, além de analisar o funil de conversão e propor melhorias.',
+ 'Cursando Marketing, Publicidade, Administração ou correlatos. Criativo e analítico. Conhecimento básico em Google Ads e redes sociais. Boa escrita.',
+ 'Bolsa R$ 1.200, Vale-refeição, Vale-transporte, Cursos e certificações pagos',
+ 'Marketing Digital', 'Bento Gonçalves', 'RS', 'presencial', 1200.00, 25, 0),
+(3, 'Estágio em Produto (Product Management)',
+ 'Aprenda a construir produtos digitais do zero. Você vai apoiar nossos PMs na definição do roadmap, priorização de features, pesquisa com usuários e análise de dados de uso. Contato direto com engenharia, design e stakeholders.',
+ 'Cursando Administração, Engenharia, Ciência da Computação ou correlatos. Pensamento analítico. Interesse em produtos digitais e startups. Boa comunicação escrita e oral.',
+ 'Bolsa R$ 1.400, Vale-refeição, Vale-transporte, Mentoria com PMs sêniores, Acesso a cursos de Product School',
+ 'Produto', 'Bento Gonçalves', 'RS', 'hibrido', 1400.00, 30, 1);

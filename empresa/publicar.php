@@ -145,7 +145,7 @@ include __DIR__ . '/../includes/header.php';
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Bolsa mensal (R$)</label>
-            <input type="number" name="bolsa" class="form-control" placeholder="1500" min="0" step="50" value="<?= htmlspecialchars($val('bolsa')) ?>">
+            <input type="number" name="bolsa" class="form-control" placeholder="1500" min="0" step="1" value="<?= htmlspecialchars($val('bolsa')) ?>">
           </div>
           <div class="form-group">
             <label class="form-label">Carga horária semanal</label>

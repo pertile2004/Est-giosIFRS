@@ -27,13 +27,17 @@ Guia rápido para rodar o InternSHIP Connect em qualquer PC (ex.: o da escola) s
 4. **Abrir o site**
    - **http://localhost/teste/**
 
-## Contas para a apresentação (senha entre parênteses)
+## Contas para a apresentação
 
-| Papel        | E-mail                                      | Senha     |
-|--------------|---------------------------------------------|-----------|
-| Coordenação  | coordenacao@internshipconnect.com.br        | coord123  |
-| Empresa      | rh@techsolutions.com                        | senha123  |
-| Aluno        | joao@email.com                              | senha123  |
+| Papel        | Nome                          | E-mail                                      | Senha     |
+|--------------|-------------------------------|---------------------------------------------|-----------|
+| Coordenação  | Coordenação InternSHIP        | coordenacao@internshipconnect.com.br        | coord123  |
+| Empresa      | Tech Solutions Ltda           | rh@techsolutions.com                        | 123456    |
+| Empresa      | InovaCorp                     | rh@inovacorp.com.br                         | 123456    |
+| Empresa      | StartupBR                     | vagas@startupbr.io                          | 123456    |
+| Aluno        | João Pedro Pertile            | jp20042009@gmail.com                        | 123456    |
+| Aluno        | Derick Visintiner Sonda       | derick.v.sonda@gmail.com                    | 123456    |
+| Aluno        | Luiza Demartini da Costa      | demartinidacostaluiza@gmail.com             | 123456    |
 
 ## Para NÃO dar erro
 - **Use login por e-mail/senha.** Os botões **Google/GitHub** precisam de configuração extra (`config/oauth.local.php`, que não vai pro GitHub) e **não funcionam** na apresentação.

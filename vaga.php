@@ -123,9 +123,9 @@ include __DIR__ . '/includes/header.php';
   </div>
 </div>
 
-<div style="background:var(--gray-50);padding:0 24px 80px;">
+<div style="background:var(--gray-50);padding:16px 24px 80px;">
   <div class="container">
-    <div class="grid-2" style="align-items:start;margin-top:-24px;">
+    <div class="grid-2" style="align-items:start;">
 
       <div style="grid-column:1/2;">
         <div style="background:var(--surface);color:var(--text);border-radius:var(--radius-lg);padding:36px;border:1px solid var(--border);box-shadow:var(--shadow);">

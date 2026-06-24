@@ -33,12 +33,12 @@ $empresas = $db->query("
 include __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="container" style="max-width:1200px;padding:32px 24px;">
+<div class="container" style="max-width:1400px;padding:32px 24px;">
   <a href="/teste/admin/" class="btn btn-ghost btn-sm">← Voltar ao painel</a>
   <h1 style="margin-top:12px;">Empresas cadastradas</h1>
   <p class="text-muted">Total: <?= count($empresas) ?></p>
 
-  <div class="table-wrap" style="margin-top:20px;">
+  <div class="table-wrap compact" style="margin-top:20px;">
     <table>
       <thead>
         <tr>
