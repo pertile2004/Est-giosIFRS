@@ -77,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['candidatar'])) {
         $stmt2 = $db->prepare("INSERT INTO candidaturas (aluno_id, vaga_id, carta) VALUES (?, ?, ?)");
         $stmt2->execute([$_SESSION['perfil_id'], $id, $carta]);
         $jaCandidatou = true;
+        $minhaCandidaturaId = (int)$db->lastInsertId();
         $mensagem = 'Candidatura enviada com sucesso!';
     }
 }
