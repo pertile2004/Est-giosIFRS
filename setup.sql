@@ -125,12 +125,27 @@ CREATE TABLE IF NOT EXISTS mensagens (
 -- Mensagens enviadas pela página pública de Contato (lidas pela Coordenação)
 CREATE TABLE IF NOT EXISTS mensagens_contato (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NULL,
     nome VARCHAR(150) NOT NULL,
     email VARCHAR(200) NOT NULL,
     assunto VARCHAR(200) NOT NULL,
     mensagem TEXT NOT NULL,
     status ENUM('nova','lida','resolvida') NOT NULL DEFAULT 'nova',
-    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_usuario (usuario_id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Respostas (chat) entre coordenação e usuario dentro de uma mensagem de contato
+CREATE TABLE IF NOT EXISTS respostas_contato (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mensagem_id INT NOT NULL,
+    remetente_tipo ENUM('coordenacao','usuario') NOT NULL,
+    conteudo TEXT NOT NULL,
+    lida TINYINT(1) DEFAULT 0,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (mensagem_id) REFERENCES mensagens_contato(id) ON DELETE CASCADE,
+    INDEX idx_msg (mensagem_id, criado_em)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Senha de todos os usuarios seed (empresas + alunos): 123456

@@ -17,15 +17,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erro = 'Informe um e-mail válido.';
     } else {
-        getDB()->prepare(
-            "INSERT INTO mensagens_contato (nome, email, assunto, mensagem) VALUES (?, ?, ?, ?)"
+        $db = getDB();
+        $db->prepare(
+            "INSERT INTO mensagens_contato (usuario_id, nome, email, assunto, mensagem) VALUES (?, ?, ?, ?, ?)"
         )->execute([
+            isLoggedIn() ? $_SESSION['usuario_id'] : null,
             mb_substr($nome, 0, 150),
             mb_substr($email, 0, 200),
             mb_substr($assunto, 0, 200),
             $mensagem,
         ]);
-        header('Location: /teste/contato.php?enviado=1');
+        $novoId = $db->lastInsertId();
+        // Se estiver logado, manda direto pra conversa
+        if (isLoggedIn()) {
+            header('Location: /teste/conversa-contato.php?id=' . $novoId);
+        } else {
+            header('Location: /teste/contato.php?enviado=1');
+        }
         exit;
     }
 }

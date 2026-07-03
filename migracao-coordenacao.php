@@ -20,15 +20,40 @@ $log = [];
 $db->exec("
     CREATE TABLE IF NOT EXISTS mensagens_contato (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        usuario_id INT NULL,
         nome VARCHAR(150) NOT NULL,
         email VARCHAR(200) NOT NULL,
         assunto VARCHAR(200) NOT NULL,
         mensagem TEXT NOT NULL,
         status ENUM('nova','lida','resolvida') NOT NULL DEFAULT 'nova',
-        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_usuario (usuario_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ");
 $log[] = 'OK: tabela mensagens_contato pronta.';
+
+// 1.1 Se mensagens_contato existe mas nao tem usuario_id (install antigo), adiciona
+$colsMc = $db->query("SHOW COLUMNS FROM mensagens_contato")->fetchAll(PDO::FETCH_COLUMN);
+if (!in_array('usuario_id', $colsMc, true)) {
+    $db->exec("ALTER TABLE mensagens_contato ADD COLUMN usuario_id INT NULL AFTER id");
+    $db->exec("ALTER TABLE mensagens_contato ADD INDEX idx_usuario (usuario_id)");
+    $log[] = 'OK: coluna mensagens_contato.usuario_id criada.';
+}
+
+// 1.2 Tabela de respostas (chat coordenacao <-> usuario)
+$db->exec("
+    CREATE TABLE IF NOT EXISTS respostas_contato (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        mensagem_id INT NOT NULL,
+        remetente_tipo ENUM('coordenacao','usuario') NOT NULL,
+        conteudo TEXT NOT NULL,
+        lida TINYINT(1) DEFAULT 0,
+        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (mensagem_id) REFERENCES mensagens_contato(id) ON DELETE CASCADE,
+        INDEX idx_msg (mensagem_id, criado_em)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+");
+$log[] = 'OK: tabela respostas_contato pronta.';
 
 // 2. Adiciona o tipo 'coordenacao' ao enum de usuarios (idempotente)
 $col = $db->query("SHOW COLUMNS FROM usuarios LIKE 'tipo'")->fetch();

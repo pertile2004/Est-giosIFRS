@@ -3,6 +3,23 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../includes/auth.php';
 
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
+
+// Badge de mensagens da coordenacao nao lidas (aluno/empresa)
+$msgsCoordNaoLidas = 0;
+if (isLoggedIn() && !isCoordenacao() && !isAdmin()) {
+    try {
+        $stmtNL = getDB()->prepare("
+            SELECT COUNT(*)
+              FROM respostas_contato rc
+              JOIN mensagens_contato mc ON mc.id = rc.mensagem_id
+             WHERE mc.usuario_id = ?
+               AND rc.remetente_tipo = 'coordenacao'
+               AND rc.lida = 0
+        ");
+        $stmtNL->execute([$_SESSION['usuario_id']]);
+        $msgsCoordNaoLidas = (int)$stmtNL->fetchColumn();
+    } catch (Throwable $e) { /* tabela pode nao existir em installs antigos */ }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -64,6 +81,12 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
           <a href="/teste/empresa/publicar.php" class="btn btn-primary btn-sm">+ Publicar Vaga</a>
         <?php endif; ?>
         <?php if (isAluno() || isEmpresa()): ?>
+          <a href="/teste/minhas-mensagens.php" class="btn btn-ghost btn-sm" title="Minhas mensagens" style="display:inline-flex;align-items:center;gap:6px;">
+            Mensagens
+            <?php if ($msgsCoordNaoLidas > 0): ?>
+              <span class="badge" style="background:var(--primary);color:#fff;padding:2px 7px;border-radius:10px;font-size:.72rem;font-weight:700;"><?= $msgsCoordNaoLidas ?></span>
+            <?php endif; ?>
+          </a>
           <a href="<?= isAluno() ? '/teste/dashboard/aluno.php#perfil' : '/teste/dashboard/empresa.php#perfil' ?>"
              class="btn btn-ghost btn-sm"
              title="<?= htmlspecialchars($_SESSION['nome'] ?? 'Meu perfil') ?>"
@@ -86,9 +109,12 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <?php if (isLoggedIn()): ?>
       <?php if (isAluno()): ?>
         <a href="/teste/dashboard/aluno.php">Meu Painel</a>
-      <?php else: ?>
+      <?php elseif (isEmpresa()): ?>
         <a href="/teste/dashboard/empresa.php">Painel Empresa</a>
         <a href="/teste/empresa/publicar.php">+ Publicar Vaga</a>
+      <?php endif; ?>
+      <?php if (isAluno() || isEmpresa()): ?>
+        <a href="/teste/minhas-mensagens.php">Mensagens<?= $msgsCoordNaoLidas > 0 ? ' (' . $msgsCoordNaoLidas . ')' : '' ?></a>
       <?php endif; ?>
       <a href="/teste/logout.php">Sair</a>
     <?php else: ?>

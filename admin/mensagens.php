@@ -24,8 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $filtro = $_GET['status'] ?? 'todas';
-$where = in_array($filtro, ['nova','lida','resolvida'], true) ? "WHERE status = " . $db->quote($filtro) : '';
-$mensagens = $db->query("SELECT * FROM mensagens_contato $where ORDER BY (status='nova') DESC, criado_em DESC")->fetchAll();
+$where = in_array($filtro, ['nova','lida','resolvida'], true) ? "WHERE mc.status = " . $db->quote($filtro) : '';
+$mensagens = $db->query("
+    SELECT mc.*,
+           (SELECT COUNT(*) FROM respostas_contato rc WHERE rc.mensagem_id=mc.id AND rc.remetente_tipo='usuario' AND rc.lida=0) AS nao_lidas,
+           (SELECT COUNT(*) FROM respostas_contato rc WHERE rc.mensagem_id=mc.id) AS total_respostas
+      FROM mensagens_contato mc
+      $where
+     ORDER BY (mc.status='nova') DESC, (nao_lidas > 0) DESC, mc.criado_em DESC
+")->fetchAll();
 
 $contagem = $db->query("
     SELECT
@@ -96,8 +103,17 @@ include __DIR__ . '/../includes/header.php';
           <p style="margin-top:12px;color:var(--gray-700);white-space:pre-wrap;"><?= htmlspecialchars($m['mensagem']) ?></p>
 
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+            <a href="/teste/conversa-contato.php?id=<?= (int)$m['id'] ?>" class="btn btn-primary btn-sm">
+              Abrir conversa
+              <?php if ((int)$m['nao_lidas'] > 0): ?>
+                <span style="background:#fff;color:var(--primary);padding:1px 7px;border-radius:10px;font-size:.72rem;font-weight:800;margin-left:6px;"><?= (int)$m['nao_lidas'] ?></span>
+              <?php elseif ((int)$m['total_respostas'] > 0): ?>
+                <span style="opacity:.8;font-size:.78rem;margin-left:6px;">· <?= (int)$m['total_respostas'] ?></span>
+              <?php endif; ?>
+            </a>
+
             <a href="mailto:<?= htmlspecialchars($m['email']) ?>?subject=<?= rawurlencode('Re: ' . $m['assunto']) ?>"
-               class="btn btn-primary btn-sm">Responder por e-mail</a>
+               class="btn btn-ghost btn-sm">E-mail</a>
 
             <?php if ($m['status'] === 'nova'): ?>
               <form method="POST" style="display:inline;">
